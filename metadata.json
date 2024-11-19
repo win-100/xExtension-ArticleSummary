@@ -1,7 +1,7 @@
 {
   "name": "ArticleSummary",
   "author": "Liang",
-  "description": "A plugin that uses the same interface as OpenAI to summarize article content",
+  "description": "A powerful article summarization plugin for FreshRSS that allows users to generate summaries using a language model API conforming to the OpenAI API specification.",
   "version": 0.1,
   "entrypoint": "ArticleSummary",
   "type": "user"
