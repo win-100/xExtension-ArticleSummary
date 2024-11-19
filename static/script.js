@@ -108,7 +108,7 @@ async function sendOpenAIRequest(container, oaiParams) {
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
-        setOaiState(container, 0, '完成', null);
+        setOaiState(container, 0, 'finish', null);
         break;
       }
 

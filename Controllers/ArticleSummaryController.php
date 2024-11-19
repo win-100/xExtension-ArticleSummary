@@ -21,7 +21,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
     ) {
       echo json_encode(array(
         'response' => array(
-          'data' => '未完成配置',
+          'data' => 'missing config',
           'error' => 'configuration'
         ),
         'status' => 200
