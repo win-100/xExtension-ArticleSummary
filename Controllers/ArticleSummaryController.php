@@ -207,10 +207,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
 
     // 去除多余的换行符
     $markdown = preg_replace('/(\n){3,}/', "\n\n", $markdown);
-
-    // 调试信息
-    error_log("Processed Markdown:\n" . $markdown);
-
+    
     return $markdown;
   }
 
