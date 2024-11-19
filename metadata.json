@@ -1,0 +1,8 @@
+{
+  "name": "ArticleSummary",
+  "author": "Liang",
+  "description": "A plugin that uses the same interface as OpenAI to summarize article content",
+  "version": 0.1,
+  "entrypoint": "ArticleSummary",
+  "type": "user"
+}
