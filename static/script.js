@@ -5,7 +5,7 @@ if (document.readyState && document.readyState !== 'loading') {
 }
 
 function configureSummarizeButtons() {
-  document.getElementById('global').addEventListener('click', function(e) {
+  document.getElementById('global').addEventListener('click', function (e) {
     for (var target = e.target; target && target != this; target = target.parentNode) {
       if (target.matches('.oai-summary-btn')) {
         e.preventDefault();
@@ -21,33 +21,29 @@ function configureSummarizeButtons() {
 
 function setOaiState(container, statusType, statusMsg, summaryText) {
   var content = container.querySelector('.oai-summary-content');
-  console.log('set...', content);
-  content.innerHTML = 'asdfsdfsdfs'
-  
-  switch(statusType) {
-    case 0:
-      container.classList.remove('oai-loading');
-      container.classList.remove('oai-error');
-      content.innerHTML = '';
-      break;
-    case 1:
-      container.classList.add('oai-loading');
-      container.classList.remove('oai-error');
-      content.innerHTML = statusMsg;
-      break;
-    case 2:
-      container.classList.remove('oai-loading');
-      container.classList.add('oai-error');
-      content.innerHTML = statusMsg;
-      break;
+
+  // 根据 state 设置不同的状态
+  if (statusType === 1) {
+    container.classList.add('oai-loading');
+    container.classList.remove('oai-error');
+    content.innerHTML = statusMsg;
+  } else if (statusType === 2) {
+    container.classList.remove('oai-loading');
+    container.classList.add('oai-error');
+    content.innerHTML = statusMsg;
+  } else {
+    container.classList.remove('oai-loading');
+    container.classList.remove('oai-error');
   }
 
+  console.log(content);
+  
   if (summaryText) {
     content.innerHTML = summaryText.replace(/(?:\r\n|\r|\n)/g, '<br>');
   }
 }
 
-function summarizeButtonClick(target) {
+async function summarizeButtonClick(target) {
   var container = target.parentNode;
   if (container.classList.contains('oai-loading')) {
     return;
@@ -55,43 +51,74 @@ function summarizeButtonClick(target) {
 
   setOaiState(container, 1, '加载中', null);
 
+  // 这是 php 获取参数的地址
   var url = target.dataset.request;
-  var request = new XMLHttpRequest();
-  request.open('POST', url, true);
-  request.responseType = 'json';
+  var data = {
+    ajax: true,
+    _csrf: context.csrf
+  };
 
-  request.onload = function(e) {
-    console.log(this, e);
-    
-    if (this.status != 200) {
-      return request.onerror(e);
-    }
+  try {
+    const response = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
 
-    var xresp = xmlHttpRequestJson(this);
+    const xresp = response.data;
     console.log(xresp);
-    
-    if (!xresp) {
-      return request.onerror(e);
-    }
 
-    if (xresp.status !== 200 || !xresp.response || !xresp.response.output_text) {
-      return request.onerror(e);
+    if (response.status !== 200 || !xresp.response || !xresp.response.data) {
+      throw new Error('请求失败');
     }
 
     if (xresp.response.error) {
-      setOaiState(container, 2, xresp.response.output_text, null);
+      setOaiState(container, 2, xresp.response.data, null);
     } else {
-      setOaiState(container, 0, null, xresp.response.output_text);
-    }
-  }
+      // 解析 PHP 返回的参数
+      const oaiParams = xresp.response.data;
 
-  request.onerror = function(e) {
+      // 向 OpenAI 发送流式请求
+      await sendOpenAIRequest(container, oaiParams);
+    }
+  } catch (error) {
+    console.error(error);
     setOaiState(container, 2, '请求失败', null);
   }
-
-  request.setRequestHeader('Content-Type', 'application/json');
-  request.send(JSON.stringify({
-    ajax: true,
-    _csrf: context.csrf
-  }));
 }
+
+async function sendOpenAIRequest(container, oaiParams) {
+  try {
+    const response = await fetch(oaiParams.oai_url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${oaiParams.oai_key}`
+      },
+      body: JSON.stringify(oaiParams)
+    });
+
+    if (!response.ok) {
+      throw new Error('请求失败');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        setOaiState(container, 0, '完成', null);
+        break;
+      }
+
+      const chunk = decoder.decode(value, { stream: true });
+      const text = JSON.parse(chunk)?.choices[0]?.message?.content || ''
+      setOaiState(container, 0, null, marked.parse(text));
+    }
+  } catch (error) {
+    console.error(error);
+    setOaiState(container, 2, '请求失败', null);
+  }
+}
+

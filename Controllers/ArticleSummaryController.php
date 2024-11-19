@@ -21,7 +21,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
     ) {
       echo json_encode(array(
         'response' => array(
-          'output_text' => '未完成配置',
+          'data' => '未完成配置',
           'error' => 'configuration'
         ),
         'status' => 200
@@ -40,101 +40,31 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
 
     $content = $entry->content(); // 替换为你的文章内容
 
-    // 初始化 cURL 会话
-    $ch = curl_init();
-
-    $full_url = rtrim($oai_url, '/') . '/completions';
-
-    // 设置 cURL 选项
-    curl_setopt($ch, CURLOPT_URL, $full_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // 返回结果而不是直接输出
-    curl_setopt($ch, CURLOPT_POST, true); // 设置请求方法为 POST
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-      "Content-Type: application/json",
-      "Authorization: Bearer " . $oai_key
-    ]);
-
-    // 设置请求体
-    $requestBody = json_encode([
-      "model" => $oai_model,
-      "prompt" => $oai_prompt . "\n" . $this->htmlToMarkdown($content),
-      "max_tokens" => 2048, // 你可以根据需要调整总结的长度
-      "temperature" => 0.7, // 你可以根据需要调整生成文本的随机性
-      "n" => 1 // 生成一个总结
-    ]);
-
-    // 临时测试
-    // $successResponse = array(
-    //   'response' => array(
-    //     'output_text' => $oai_prompt . "\n" . $this->htmlToMarkdown($content),
-    //     'error' => null
-    //   ),
-    //   'status' => 200
-    // );
-    // echo json_encode($successResponse);
-    // return;
-
-    // 打印请求体以进行调试
-    error_log("Request Body: " . $requestBody);
-
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $requestBody);
-
-    // 设置超时时间
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30); // 设置超时时间为 30 秒
-
-    // 允许重定向
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-
-    // 执行 cURL 请求
-    $response = curl_exec($ch);
-
-    // 检查是否有错误
-    if (curl_errno($ch)) {
-      $errorResponse = array(
-        'response' => array(
-          'output_text' => '请求失败',
-          'error' => 'cURL error: ' . curl_error($ch)
+    $successResponse = array(
+      'response' => array(
+        'data' => array(
+          "oai_url" => rtrim($oai_url, '/') . '/v1/chat/completions',
+          "oai_key" => $oai_key,
+          "model" => $oai_model,
+          "messages" => [
+            [
+              "role" => "system",
+              "content" => $oai_prompt
+            ],
+            [
+              "role" => "user",
+              "content" => "input: \n" . $this->htmlToMarkdown($content),
+            ]
+          ],
+          "max_tokens" => 2048, // 你可以根据需要调整总结的长度
+          "temperature" => 0.7, // 你可以根据需要调整生成文本的随机性
+          "n" => 1 // 生成一个总结
         ),
-        'status' => 500
-      );
-      // 打印 cURL 错误信息以进行调试
-      error_log("cURL Error: " . curl_error($ch));
-      echo json_encode($errorResponse);
-    } else {
-      // 打印响应内容以进行调试
-      error_log("Response: " . $response);
-
-      // 解析响应
-      $responseData = json_decode($response, true);
-
-      // 检查响应是否成功
-      if (isset($responseData['choices'][0]['text'])) {
-        $summary = $responseData['choices'][0]['text'];
-        $successResponse = array(
-          'response' => array(
-            'output_text' => $summary,
-            'error' => null
-          ),
-          'status' => 200
-        );
-        echo json_encode($successResponse);
-      } else {
-        $errorResponse = array(
-          'response' => array(
-            'output_text' => '请求失败',
-            'error' => 'API error: ' . print_r($responseData, true)
-          ),
-          'status' => 500
-        );
-        // 打印 API 错误信息以进行调试
-        error_log("API Error: " . print_r($responseData, true));
-        echo json_encode($errorResponse);
-      }
-    }
-
-    // 关闭 cURL 会话
-    curl_close($ch);
-    // 终止脚本执行
+        'error' => null
+      ),
+      'status' => 200
+    );
+    echo json_encode($successResponse);
     return;
   }
 

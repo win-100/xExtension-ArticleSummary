@@ -7,7 +7,7 @@ $oai_prompt = FreshRSS_Context::$user_conf->oai_prompt;
 
 <form action="<?php echo _url('extension', 'configure', 'e', urlencode($this->getName())); ?>" method="post">
   <input type="hidden" name="_csrf" value="<?php echo FreshRSS_Auth::csrfToken(); ?>" />
-  <label for="oai_url">base url, http(s)....../v1</label>
+  <label for="oai_url">base url, (http(s)://oai.com/) without 'v1'</label>
   <input type="text" name="oai_url" id="oai_url" value="<?php echo $oai_url; ?>">
   <label for="oai_key">api key</label>
   <input type="text" name="oai_key" id="oai_key" value="<?php echo $oai_key; ?>">

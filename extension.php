@@ -1,10 +1,19 @@
 <?php
 class ArticleSummaryExtension extends Minz_Extension
 {
+
+
+  protected array $csp_policies = [
+    'default-src' => '*',
+  ];
+
   public function init()
   {
     $this->registerHook('entry_before_display', array($this, 'addSummaryButton'));
     $this->registerController('ArticleSummary');
+    Minz_View::appendStyle($this->getFileUrl('style.css', 'css'));
+    Minz_View::appendScript($this->getFileUrl('axios.js', 'js'));
+    Minz_View::appendScript($this->getFileUrl('marked.js', 'js'));
     Minz_View::appendScript($this->getFileUrl('script.js', 'js'));
   }
 
