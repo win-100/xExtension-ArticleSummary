@@ -52,6 +52,10 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - Thanks to the FreshRSS community for providing a robust platform for RSS management.
 - Inspired by the need for efficient article summarization tools.
 
+## History
+- Version: 0.1.1 (2024-11-20)
+  > **Bug Fix**: Prevented the summary button from affecting the title list display. Previously, the 'entry_before_display' hook was causing the summary button to be added to the title list, leading to display issues. Now, the button initially has no text and adds text only when the article is clicked to be displayed.
+
 ---
 
 For any questions or support, please open an issue on this repository.
