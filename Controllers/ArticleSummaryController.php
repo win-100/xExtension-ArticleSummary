@@ -12,6 +12,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
     $oai_key = FreshRSS_Context::$user_conf->oai_key;
     $oai_model = FreshRSS_Context::$user_conf->oai_model;
     $oai_prompt = FreshRSS_Context::$user_conf->oai_prompt;
+    $oai_provider = FreshRSS_Context::$user_conf->oai_provider;
 
     if (
       $this->isEmpty($oai_url)
@@ -40,6 +41,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
 
     $content = $entry->content(); // 替换为你的文章内容
 
+    // Open AI Input
     $successResponse = array(
       'response' => array(
         'data' => array(
@@ -60,10 +62,30 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           "temperature" => 0.7, // 你可以根据需要调整生成文本的随机性
           "n" => 1 // 生成一个总结
         ),
+        'provider' => 'openai',
         'error' => null
       ),
       'status' => 200
     );
+
+    // Ollama API Input
+    if ($oai_provider === "ollama") {
+      $successResponse = array(
+        'response' => array(
+          'data' => array(
+            "oai_url" => rtrim($oai_url, '/') . '/api/generate',
+            "oai_key" => $oai_key,
+            "model" => $oai_model,
+            "system" => $oai_prompt,
+            "prompt" =>  $this->htmlToMarkdown($content),
+            "stream" => true,
+          ),
+          'provider' => 'ollama',
+          'error' => null
+        ),
+        'status' => 200
+      );
+    }
     echo json_encode($successResponse);
     return;
   }
