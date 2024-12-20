@@ -102,13 +102,16 @@ async function summarizeButtonClick(target) {
 
 async function sendOpenAIRequest(container, oaiParams) {
   try {
+    let body = JSON.parse(JSON.stringify(oaiParams));
+    delete body['oai_url'];
+    delete body['oai_key'];	  
     const response = await fetch(oaiParams.oai_url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${oaiParams.oai_key}`
       },
-      body: JSON.stringify(oaiParams)
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
