@@ -41,13 +41,17 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
 
     $content = $entry->content(); // 替换为你的文章内容
 
+    // 处理 $oai_url
+    $oai_url = rtrim($oai_url, '/'); // 去除末尾的斜杠
+    if (!preg_match('/\/v\d+\/?$/', $oai_url)) {
+        $oai_url .= '/v1'; // 如果没有版本信息，则添加 /v1
+    }
     // Open AI Input
     $successResponse = array(
       'response' => array(
         'data' => array(
           // 判断url是否有版本结尾，如果有版本信息则不添加版本信息，如果没有则默认添加/v1
-          $oai_url = preg_match('/\/v\d+\/?$/', $oai_url) ? rtrim($oai_url, '/') : rtrim($oai_url, '/') . '/v1',
-          "oai_url" => rtrim($oai_url, '/') . '/chat/completions',
+          "oai_url" => $oai_url . '/chat/completions',
           "oai_key" => $oai_key,
           "model" => $oai_model,
           "messages" => [
