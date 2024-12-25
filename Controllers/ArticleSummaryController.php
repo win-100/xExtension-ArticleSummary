@@ -45,7 +45,9 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
     $successResponse = array(
       'response' => array(
         'data' => array(
-          "oai_url" => rtrim($oai_url, '/') . '/v1/chat/completions',
+          // 判断url是否有版本结尾，如果有版本信息则不添加版本信息，如果没有则默认添加/v1
+          $oai_url = preg_match('/\/v\d+\/?$/', $oai_url) ? rtrim($oai_url, '/') : rtrim($oai_url, '/') . '/v1',
+          "oai_url" => rtrim($oai_url, '/') . '/chat/completions',
           "oai_key" => $oai_key,
           "model" => $oai_model,
           "messages" => [
