@@ -126,6 +126,16 @@ async function sendOpenAIRequest(container, oaiParams) {
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
+        if (buffer) {
+          try {
+            const json = JSON.parse(buffer.trim());
+            text += json.choices?.[0]?.message?.content || json.choices?.[0]?.delta?.content || '';
+            setOaiState(container, 0, null, marked.parse(text));
+          } catch (e) {
+            console.error('Error parsing final JSON:', e, 'Chunk:', buffer);
+            setOaiState(container, 2, '请求失败 / Request Failed', null);
+          }
+        }
         setOaiState(container, 0, 'finish', null);
         break;
       }
