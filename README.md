@@ -1,8 +1,5 @@
 # FreshRSS Article Summary Extension
 
-- [中文 README](README_zh.md)
-- [English README](README.md)
-
 This extension for FreshRSS allows users to generate summaries of articles using a language model API that conforms to the OpenAI API specification. The extension provides a user-friendly interface to configure the API endpoint, API key, model name, and a prompt to be added before the content. When activated, it adds a "summarize" button to each article, which, when clicked, sends the article content to the configured API for summarization.
 
 ## Features

@@ -27,7 +27,6 @@ function configureSummarizeButtons() {
 function setOaiState(container, statusType, statusMsg, summaryText) {
   const button = container.querySelector('.oai-summary-btn');
   const content = container.querySelector('.oai-summary-content');
-  // 根据 state 设置不同的状态
   if (statusType === 1) {
     container.classList.add('oai-loading');
     container.classList.remove('oai-error');
@@ -59,9 +58,9 @@ async function summarizeButtonClick(target) {
     return;
   }
 
-  setOaiState(container, 1, '加载中', null);
+  setOaiState(container, 1, 'Loading...', null);
 
-  // 这是 php 获取参数的地址 - This is the address where PHP gets the parameters
+  // This is the address where PHP gets the parameters
   var url = target.dataset.request;
   var data = new URLSearchParams();
   data.append('ajax', 'true');
@@ -78,13 +77,12 @@ async function summarizeButtonClick(target) {
     console.log(xresp);
 
     if (response.status !== 200 || !xresp.response || !xresp.response.data) {
-      throw new Error('请求失败 / Request Failed');
+      throw new Error('Request Failed (1)');
     }
 
     if (xresp.response.error) {
       setOaiState(container, 2, xresp.response.data, null);
     } else {
-      // 解析 PHP 返回的参数
       const oaiParams = xresp.response.data;
       const oaiProvider = xresp.response.provider;
       if (oaiProvider === 'openai') {
@@ -95,7 +93,7 @@ async function summarizeButtonClick(target) {
     }
   } catch (error) {
     console.error(error);
-    setOaiState(container, 2, '请求失败 / Request Failed', null);
+    setOaiState(container, 2, 'Request Failed (2)', null);
   }
 }
 
@@ -114,7 +112,7 @@ async function sendOpenAIRequest(container, oaiParams) {
     });
 
     if (!response.ok) {
-      throw new Error('请求失败 / Request Failed');
+      throw new Error('Request Failed (3)');
     }
 
     const reader = response.body.getReader();
@@ -132,7 +130,7 @@ async function sendOpenAIRequest(container, oaiParams) {
             setOaiState(container, 0, null, marked.parse(text));
           } catch (e) {
             console.error('Error parsing final JSON:', e, 'Chunk:', buffer);
-            setOaiState(container, 2, '请求失败 / Request Failed', null);
+            setOaiState(container, 2, 'Request Failed (4)', null);
           }
         }
         setOaiState(container, 0, 'finish', null);
@@ -166,7 +164,7 @@ async function sendOpenAIRequest(container, oaiParams) {
     }
   } catch (error) {
     console.error(error);
-    setOaiState(container, 2, '请求失败 / Request Failed', null);
+    setOaiState(container, 2, 'Request Failed (5)', null);
   }
 }
 
@@ -183,7 +181,7 @@ async function sendOllamaRequest(container, oaiParams){
     });
 
     if (!response.ok) {
-      throw new Error('请求失败 / Request Failed');
+      throw new Error('Request Failed (6)');
     }
   
     const reader = response.body.getReader();
@@ -218,6 +216,6 @@ async function sendOllamaRequest(container, oaiParams){
     }
   } catch (error) {
     console.error(error);
-    setOaiState(container, 2, '请求失败 / Request Failed', null);
+    setOaiState(container, 2, 'Request Failed (7)', null);
   }
 }
