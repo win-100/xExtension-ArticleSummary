@@ -39,17 +39,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
       return;
     }
 
-    $markdownContent = $entry->content(); // Replace with article content
-
-    // Convert HTML to Markdown and check for empty or image-only content
-    /*$markdownContent = $this->htmlToMarkdown($content);
-    $trimmedContent = trim($markdownContent);
-    $trimmedContent = trim(preg_replace('/img: `[^`]*`/', '', $trimmedContent));*/
-    /*if ($trimmedContent === '' || $withoutImages === '') {
-      // Fallback to description when main content is empty or contains only images
-      $content = $entry->description();
-      $markdownContent = $this->htmlToMarkdown($content);
-    }*/
+    $content = $entry->content(); // Replace with article content
 
     // $oai_url
     $oai_url = rtrim($oai_url, '/'); // Remove the trailing slash
@@ -72,7 +62,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           ],
           [
             "role" => "user",
-            "content" => "input: \n" . $markdownContent,
+            "content" => "input: \n" . $content,
           ]
         ],
         // `max_tokens` is deprecated; use `max_completion_tokens` instead.
