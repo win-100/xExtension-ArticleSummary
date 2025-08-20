@@ -116,6 +116,11 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
 
   private function htmlToMarkdown($content)
   {
+    // Ensure DOM extension is available; otherwise fall back to plain text
+    if (!class_exists('DOMDocument') || !class_exists('DOMXPath')) {
+      return trim(strip_tags($content));
+    }
+
     // Creating DOMDocument objects
     $dom = new DOMDocument();
     libxml_use_internal_errors(true); // Ignore HTML parsing errors
