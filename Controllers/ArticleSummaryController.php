@@ -41,6 +41,16 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
 
     $content = $entry->content(); // Replace with article content
 
+    // Convert HTML to Markdown and check for empty or image-only content
+    $markdownContent = $this->htmlToMarkdown($content);
+    $trimmedContent = trim($markdownContent);
+    $withoutImages = trim(preg_replace('/img: `[^`]*`/', '', $trimmedContent));
+    if ($trimmedContent === '' || $withoutImages === '') {
+      // Fallback to description when main content is empty or contains only images
+      $content = $entry->description();
+      $markdownContent = $this->htmlToMarkdown($content);
+    }
+
     // $oai_url
     $oai_url = rtrim($oai_url, '/'); // Remove the trailing slash
     // Ollama doesn't use versioned endpoints, so avoid appending /v1 for that provider
@@ -62,7 +72,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           ],
           [
             "role" => "user",
-            "content" => "input: \n" . $this->htmlToMarkdown($content),
+            "content" => "input: \n" . $markdownContent,
           ]
         ],
         // `max_tokens` 已弃用，使用 `max_completion_tokens` -
@@ -86,7 +96,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
             "oai_key" => $oai_key,
             "model" => $oai_model,
             "system" => $oai_prompt,
-            "prompt" =>  $this->htmlToMarkdown($content),
+            "prompt" =>  $markdownContent,
             "stream" => true,
           ),
           'provider' => 'ollama',
