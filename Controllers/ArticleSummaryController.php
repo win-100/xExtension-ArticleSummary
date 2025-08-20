@@ -39,7 +39,19 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
       return;
     }
 
-    $content = $entry->content(); // Replace with article content
+    $content = $entry->content();
+    $link = $entry->link();
+    if (!$this->isEmpty($link)) {
+      $html = $this->downloadHtml($link);
+      if ($html !== false) {
+        $extracted = $this->extractMainContent($html);
+        if (!empty($extracted)) {
+          $content = $extracted;
+        }
+      }
+    }
+
+    $markdown = $this->htmlToMarkdown($content);
 
     // $oai_url
     $oai_url = rtrim($oai_url, '/'); // Remove the trailing slash
@@ -62,7 +74,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           ],
           [
             "role" => "user",
-            "content" => "input: \n" . $this->htmlToMarkdown($content),
+            "content" => "input: \n" . $markdown,
           ]
         ],
         // `max_tokens` 已弃用，使用 `max_completion_tokens` -
@@ -86,7 +98,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
             "oai_key" => $oai_key,
             "model" => $oai_model,
             "system" => $oai_prompt,
-            "prompt" =>  $this->htmlToMarkdown($content),
+            "prompt" =>  $markdown,
             "stream" => true,
           ),
           'provider' => 'ollama',
@@ -238,8 +250,62 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
 
     // Remove extra line breaks
     $markdown = preg_replace('/(\n){3,}/', "\n\n", $markdown);
-    
+
     return $markdown;
+  }
+
+  private function downloadHtml($url)
+  {
+    $ch = curl_init($url);
+    if ($ch === false) {
+      return false;
+    }
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+    $html = curl_exec($ch);
+    if ($html === false || curl_errno($ch)) {
+      curl_close($ch);
+      return false;
+    }
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($status >= 400) {
+      return false;
+    }
+    return $html;
+  }
+
+  private function extractMainContent($html)
+  {
+    $dom = new DOMDocument();
+    libxml_use_internal_errors(true);
+    $dom->loadHTML($html);
+    libxml_clear_errors();
+    $xpath = new DOMXPath($dom);
+
+    $node = null;
+    $nodes = $xpath->query('//article');
+    if ($nodes->length > 0) {
+      $node = $nodes->item(0);
+    } else {
+      $nodes = $xpath->query('//body');
+      if ($nodes->length > 0) {
+        $node = $nodes->item(0);
+      }
+    }
+
+    if ($node === null) {
+      return null;
+    }
+
+    foreach ($xpath->query('.//script|.//style', $node) as $bad) {
+      $bad->parentNode->removeChild($bad);
+    }
+
+    return $dom->saveHTML($node);
   }
 
 }
