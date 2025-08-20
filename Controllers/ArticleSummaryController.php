@@ -5,7 +5,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
   public function summarizeAction()
   {
     $this->view->_layout(false);
-    // 设置响应头为 JSON - Set response header to JSON
+    // JSON - Set response header to JSON
     header('Content-Type: application/json');
 
     $oai_url = FreshRSS_Context::$user_conf->oai_url;
@@ -39,19 +39,19 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
       return;
     }
 
-    $content = $entry->content(); // 替换为你的文章内容 - Replace with article content
+    $content = $entry->content(); // Replace with article content
 
-    // 处理 $oai_url
-    $oai_url = rtrim($oai_url, '/'); // 去除末尾的斜杠
+    // $oai_url
+    $oai_url = rtrim($oai_url, '/'); // Remove the trailing slash
     // Ollama doesn't use versioned endpoints, so avoid appending /v1 for that provider
     if ($oai_provider !== 'ollama' && !preg_match('/\/v\d+\/?$/', $oai_url)) {
-        $oai_url .= '/v1'; // 如果没有版本信息，则添加 /v1 - If there is no version information, add /v1
+        $oai_url .= '/v1'; // If there is no version information, add /v1
     }
     // Open AI Input
     $successResponse = array(
       'response' => array(
         'data' => array(
-          // 判断url是否有版本结尾，如果有版本信息则不添加版本信息，如果没有则默认添加/v1 - Determine whether the URL ends with a version. If it does, no version information is added. If not, /v1 is added by default.
+          // Determine whether the URL ends with a version. If it does, no version information is added. If not, /v1 is added by default.
           "oai_url" => $oai_url . '/chat/completions',
           "oai_key" => $oai_key,
           "model" => $oai_model,
@@ -67,9 +67,9 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
         ],
         // `max_tokens` 已弃用，使用 `max_completion_tokens` -
         // `max_tokens` is deprecated; use `max_completion_tokens` instead.
-        "max_completion_tokens" => 2048, // 你可以根据需要调整总结的长度 - You can adjust the length of the summary as needed.
-        "temperature" => 0.7, // 你可以根据需要调整生成文本的随机性 - You can adjust the randomness/temperature of the generated text as needed
-        "n" => 1 // 生成一个总结 - Generate summary
+        "max_completion_tokens" => 2048, // You can adjust the length of the summary as needed.
+        "temperature" => 1, // gpt-5-nano expects 1
+        "n" => 1 // Generate summary
       ),
       'provider' => 'openai',
       'error' => null
@@ -106,25 +106,25 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
 
   private function htmlToMarkdown($content)
   {
-    // 创建 DOMDocument 对象 - Creating DOMDocument objects
+    // Creating DOMDocument objects
     $dom = new DOMDocument();
-    libxml_use_internal_errors(true); // 忽略 HTML 解析错误 - Ignore HTML parsing errors
+    libxml_use_internal_errors(true); // Ignore HTML parsing errors
     $dom->loadHTML('<?xml encoding="UTF-8">' . $content);
     libxml_clear_errors();
 
-    // 创建 XPath 对象 - Create XPath objects
+    // Create XPath objects
     $xpath = new DOMXPath($dom);
 
-    // 定义一个匿名函数来处理节点 - Define an anonymous function to process the node
+    // Define an anonymous function to process the node
     $processNode = function ($node, $indentLevel = 0) use (&$processNode, $xpath) {
       $markdown = '';
 
-      // 处理文本节点 - Processing text nodes
+      // Processing text nodes
       if ($node->nodeType === XML_TEXT_NODE) {
         $markdown .= trim($node->nodeValue);
       }
 
-      // 处理元素节点 - Processing element nodes
+      // Processing element nodes
       if ($node->nodeType === XML_ELEMENT_NODE) {
         switch ($node->nodeName) {
           case 'p':
@@ -216,7 +216,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
             $markdown .= "[" . ($alt ? $alt : 'Media') . "]";
             break;
           default:
-            // 未考虑到的标签，只保留内部文字内容 - Tags not considered, only the text inside is kept
+            // Tags not considered, only the text inside is kept
             foreach ($node->childNodes as $child) {
               $markdown .= $processNode($child);
             }
@@ -227,16 +227,16 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
       return $markdown;
     };
 
-    // 获取所有节点 - Get all nodes
+    // Get all nodes
     $nodes = $xpath->query('//body/*');
 
-    // 处理所有节点 - Process all nodes
+    // Process all nodes
     $markdown = '';
     foreach ($nodes as $node) {
       $markdown .= $processNode($node);
     }
 
-    // 去除多余的换行符 - Remove extra line breaks
+    // Remove extra line breaks
     $markdown = preg_replace('/(\n){3,}/', "\n\n", $markdown);
     
     return $markdown;
