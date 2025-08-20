@@ -11,6 +11,10 @@
   margin-bottom: 0.5em;
 }
 
+.oai-summary-content {
+  color: #000;
+}
+
 .oai-summary-content h1,
 .oai-summary-content h2,
 .oai-summary-content h3,
