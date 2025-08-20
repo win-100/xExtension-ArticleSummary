@@ -63,15 +63,14 @@ async function summarizeButtonClick(target) {
 
   // 这是 php 获取参数的地址 - This is the address where PHP gets the parameters
   var url = target.dataset.request;
-  var data = {
-    ajax: true,
-    _csrf: context.csrf
-  };
+  var data = new URLSearchParams();
+  data.append('ajax', 'true');
+  data.append('_csrf', context.csrf);
 
   try {
     const response = await axios.post(url, data, {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
 
