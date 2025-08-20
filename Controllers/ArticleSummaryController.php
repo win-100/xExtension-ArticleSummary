@@ -59,18 +59,20 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
             [
               "role" => "system",
               "content" => $oai_prompt
-            ],
-            [
-              "role" => "user",
-              "content" => "input: \n" . $this->htmlToMarkdown($content),
-            ]
           ],
-          "max_tokens" => 2048, // 你可以根据需要调整总结的长度 - You can adjust the length of the summary as needed.
-          "temperature" => 0.7, // 你可以根据需要调整生成文本的随机性 - You can adjust the randomness/temperature of the generated text as needed
-          "n" => 1 // 生成一个总结 - Generate summary
-        ),
-        'provider' => 'openai',
-        'error' => null
+          [
+            "role" => "user",
+            "content" => "input: \n" . $this->htmlToMarkdown($content),
+          ]
+        ],
+        // `max_tokens` 已弃用，使用 `max_completion_tokens` -
+        // `max_tokens` is deprecated; use `max_completion_tokens` instead.
+        "max_completion_tokens" => 2048, // 你可以根据需要调整总结的长度 - You can adjust the length of the summary as needed.
+        "temperature" => 0.7, // 你可以根据需要调整生成文本的随机性 - You can adjust the randomness/temperature of the generated text as needed
+        "n" => 1 // 生成一个总结 - Generate summary
+      ),
+      'provider' => 'openai',
+      'error' => null
       ),
       'status' => 200
     );
