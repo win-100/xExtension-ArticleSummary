@@ -11,6 +11,7 @@ This extension for FreshRSS allows users to generate summaries of articles using
 - **Summarize Button**: Adds a "summarize" button to each article, allowing users to generate a summary with a single click.
 - **Markdown Support**: Converts HTML content to Markdown before sending it to the API, ensuring compatibility with various language models.
 - **Error Handling**: Provides feedback in case of API errors or incomplete configurations.
+- **Smart Fallback**: Uses the article's description if the main content is empty or contains only images.
 
 ## Installation
 
