@@ -120,6 +120,8 @@ async function sendOpenAIRequest(container, oaiParams) {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder('utf-8');
+    let text = '';
+    let buffer = '';
 
     while (true) {
       const { done, value } = await reader.read();
@@ -127,10 +129,31 @@ async function sendOpenAIRequest(container, oaiParams) {
         setOaiState(container, 0, 'finish', null);
         break;
       }
+      buffer += decoder.decode(value, { stream: true });
 
-      const chunk = decoder.decode(value, { stream: true });
-      const text = JSON.parse(chunk)?.choices[0]?.message?.content || ''
-      setOaiState(container, 0, null, marked.parse(text));
+      // Split buffer on line delimiters and "data:" blocks
+      let parts = buffer.split(/\n\n/);
+      buffer = parts.pop();
+      for (let part of parts) {
+        part = part.trim();
+        if (!part) continue;
+        if (part.startsWith('data:')) {
+          part = part.slice(5).trim();
+        }
+        if (part === '[DONE]') {
+          setOaiState(container, 0, 'finish', null);
+          return;
+        }
+        try {
+          const json = JSON.parse(part);
+          text += json.choices?.[0]?.delta?.content || '';
+          setOaiState(container, 0, null, marked.parse(text));
+        } catch (e) {
+          // If JSON parsing fails, keep the incomplete part in the buffer
+          console.error('Error parsing JSON:', e, 'Chunk:', part);
+          buffer = part + '\n\n' + buffer;
+        }
+      }
     }
   } catch (error) {
     console.error(error);
