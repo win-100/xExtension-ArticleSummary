@@ -56,6 +56,8 @@ async function summarizeButtonClick(target) {
     return;
   }
 
+  container.classList.add('oai-summary-active');
+
   setOaiState(container, 1, 'Preparing request...', null);
 
   // This is the address where PHP gets the parameters

@@ -3,11 +3,20 @@
 }
 
 .oai-summary-box {
+  display: none;
   background: var(--frss-background-color-dark);
   color: var(--frss-font-color-light);
   border-radius: 8px;
   padding: 0.75em;
   margin-top: 1em;
+}
+
+.oai-summary-wrap.oai-summary-active .oai-summary-box {
+  display: block;
+}
+
+.oai-summary-wrap.oai-summary-active .oai-summary-btn {
+  display: none;
 }
 
 .oai-summary-btn img {
