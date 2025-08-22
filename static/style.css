@@ -1,14 +1,12 @@
 .oai-summary-wrap {
-
-  background: var(--content-bg);
-  padding: 0.75em;
   margin-bottom: 1em;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
 }
 
-.oai-summary-btn {
-  margin-bottom: 1em;
+.oai-summary-box {
+  background: var(--header-bg);
+  border-radius: 8px;
+  padding: 0.75em;
+  margin-top: 1em;
 }
 
 .oai-summary-btn img {
