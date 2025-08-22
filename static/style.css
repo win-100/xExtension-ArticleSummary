@@ -11,6 +11,11 @@
   margin-bottom: 1em;
 }
 
+.oai-summary-btn img {
+  width: 1em;
+  height: 1em;
+}
+
 .oai-summary-log {
   font-size: 0.9em;
   margin-bottom: 1em;
