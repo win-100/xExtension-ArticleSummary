@@ -30,6 +30,8 @@ class ArticleSummaryExtension extends Minz_Extension
     $entry->_content(
       '<div class="oai-summary-wrap">'
       . '<button data-request="' . $url_summary . '" class="oai-summary-btn"></button>'
+      . '<div class="oai-summary-loader"></div>'
+      . '<div class="oai-summary-log"></div>'
       . '<div class="oai-summary-content"></div>'
       . '</div>'
       . $entry->content()

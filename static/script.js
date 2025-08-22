@@ -27,28 +27,33 @@ function configureSummarizeButtons() {
 function setOaiState(container, statusType, statusMsg, summaryText) {
   const button = container.querySelector('.oai-summary-btn');
   const content = container.querySelector('.oai-summary-content');
+  const log = container.querySelector('.oai-summary-log');
+  if (statusMsg !== null) {
+    log.textContent = statusMsg;
+  }
   if (statusType === 1) {
     container.classList.add('oai-loading');
     container.classList.remove('oai-error');
-    content.innerHTML = statusMsg;
     button.disabled = true;
+    content.innerHTML = '';
   } else if (statusType === 2) {
     container.classList.remove('oai-loading');
     container.classList.add('oai-error');
-    content.innerHTML = statusMsg;
     button.disabled = false;
+    content.innerHTML = '';
   } else {
     container.classList.remove('oai-loading');
     container.classList.remove('oai-error');
-    if (statusMsg === 'finish'){
+    if (statusMsg === 'finish') {
+      log.textContent = '';
       button.disabled = false;
     }
   }
 
   console.log(content);
-  
+
   if (summaryText) {
-    content.innerHTML = summaryText.replace(/(?:\r\n|\r|\n)/g, '<br>');
+    content.innerHTML = summaryText;
   }
 }
 
@@ -58,7 +63,7 @@ async function summarizeButtonClick(target) {
     return;
   }
 
-  setOaiState(container, 1, 'Loading...', null);
+  setOaiState(container, 1, 'Preparing request...', null);
 
   // This is the address where PHP gets the parameters
   var url = target.dataset.request;
@@ -85,6 +90,7 @@ async function summarizeButtonClick(target) {
     } else {
       const oaiParams = xresp.response.data;
       const oaiProvider = xresp.response.provider;
+      setOaiState(container, 1, `Pending answer from ${oaiProvider === 'openai' ? 'OpenAI' : 'Ollama'}...`, null);
       if (oaiProvider === 'openai') {
         await sendOpenAIRequest(container, oaiParams);
       } else {
@@ -101,7 +107,7 @@ async function sendOpenAIRequest(container, oaiParams) {
   try {
     let body = JSON.parse(JSON.stringify(oaiParams));
     delete body['oai_url'];
-    delete body['oai_key'];	  
+    delete body['oai_key'];
     const response = await fetch(oaiParams.oai_url, {
       method: 'POST',
       headers: {
@@ -114,6 +120,7 @@ async function sendOpenAIRequest(container, oaiParams) {
     if (!response.ok) {
       throw new Error('Request Failed (3)');
     }
+    setOaiState(container, 1, 'Receiving answer...', null);
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder('utf-8');
@@ -183,7 +190,8 @@ async function sendOllamaRequest(container, oaiParams){
     if (!response.ok) {
       throw new Error('Request Failed (6)');
     }
-  
+    setOaiState(container, 1, 'Receiving answer...', null);
+
     const reader = response.body.getReader();
     const decoder = new TextDecoder('utf-8');
     let text = '';
