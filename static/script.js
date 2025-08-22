@@ -21,6 +21,7 @@ function configureSummarizeButtons() {
 
 function setOaiState(container, statusType, statusMsg, summaryText) {
   const button = container.querySelector('.oai-summary-btn');
+  const moreButton = container.querySelector('.oai-summary-more');
   const content = container.querySelector('.oai-summary-content');
   const log = container.querySelector('.oai-summary-log');
   if (statusMsg !== null) {
@@ -37,16 +38,19 @@ function setOaiState(container, statusType, statusMsg, summaryText) {
     container.classList.remove('oai-error');
     button.disabled = true;
     content.innerHTML = '';
+    if (moreButton) moreButton.style.display = 'none';
   } else if (statusType === 2) {
     container.classList.remove('oai-loading');
     container.classList.add('oai-error');
     button.disabled = false;
     content.innerHTML = '';
+    if (moreButton) moreButton.style.display = 'none';
   } else {
     container.classList.remove('oai-loading');
     container.classList.remove('oai-error');
     if (statusMsg === 'finish') {
       button.disabled = false;
+      if (moreButton) moreButton.style.display = 'inline-block';
     }
   }
 
@@ -56,7 +60,7 @@ function setOaiState(container, statusType, statusMsg, summaryText) {
 }
 
 async function summarizeButtonClick(target) {
-  var container = target.parentNode;
+  var container = target.closest('.oai-summary-wrap');
   if (container.classList.contains('oai-loading')) {
     return;
   }

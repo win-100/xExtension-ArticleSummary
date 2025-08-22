@@ -11,8 +11,11 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
     $oai_url = FreshRSS_Context::$user_conf->oai_url;
     $oai_key = FreshRSS_Context::$user_conf->oai_key;
     $oai_model = FreshRSS_Context::$user_conf->oai_model;
-    $oai_prompt = FreshRSS_Context::$user_conf->oai_prompt;
+    $oai_prompt_base = FreshRSS_Context::$user_conf->oai_prompt;
+    $oai_prompt_more = FreshRSS_Context::$user_conf->oai_prompt_2;
     $oai_provider = FreshRSS_Context::$user_conf->oai_provider;
+    $use_more = Minz_Request::param('more');
+    $oai_prompt = $use_more ? $oai_prompt_more : $oai_prompt_base;
 
     if (
       $this->isEmpty($oai_url)

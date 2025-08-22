@@ -26,19 +26,29 @@ class ArticleSummaryExtension extends Minz_Extension
         'id' => $entry->id()
       )
     ));
+    $url_more = Minz_Url::display(array(
+      'c' => 'ArticleSummary',
+      'a' => 'summarize',
+      'params' => array(
+        'id' => $entry->id(),
+        'more' => 1
+      )
+    ));
+    $has_more = trim((string)FreshRSS_Context::$user_conf->oai_prompt_2) !== '';
 
-      $entry->_content(
-        '<div class="oai-summary-wrap">'
-        . '<button data-request="' . $url_summary . '" class="oai-summary-btn btn btn-small" aria-label="Résumer" title="Résumer">'
-        . '<img src="' . $this->getFileUrl('img/summary.svg') . '" class="oai-summary-icon" alt="Résumé"></button>'
-        . '<div class="oai-summary-box">'
-        . '<div class="oai-summary-loader"></div>'
-        . '<div class="oai-summary-log"></div>'
-        . '<div class="oai-summary-content"></div>'
-        . '</div>'
-        . '</div>'
-        . $entry->content()
-      );
+    $entry->_content(
+      '<div class="oai-summary-wrap">'
+      . '<button data-request="' . $url_summary . '" class="oai-summary-btn btn btn-small" aria-label="Résumer" title="Résumer">'
+      . '<img src="' . $this->getFileUrl('img/summary.svg') . '" class="oai-summary-icon" alt="Résumé"></button>'
+      . '<div class="oai-summary-box">'
+      . '<div class="oai-summary-loader"></div>'
+      . '<div class="oai-summary-log"></div>'
+      . '<div class="oai-summary-content"></div>'
+      . ($has_more ? '<button data-request="' . $url_more . '" class="oai-summary-btn oai-summary-more btn btn-small" aria-label="Résumé plus long" title="Résumé plus long">+</button>' : '')
+      . '</div>'
+      . '</div>'
+      . $entry->content()
+    );
     return $entry;
   }
 
@@ -49,6 +59,7 @@ class ArticleSummaryExtension extends Minz_Extension
       FreshRSS_Context::$user_conf->oai_key = Minz_Request::param('oai_key', '');
       FreshRSS_Context::$user_conf->oai_model = Minz_Request::param('oai_model', '');
       FreshRSS_Context::$user_conf->oai_prompt = Minz_Request::param('oai_prompt', '');
+      FreshRSS_Context::$user_conf->oai_prompt_2 = Minz_Request::param('oai_prompt_2', '');
       FreshRSS_Context::$user_conf->oai_provider = Minz_Request::param('oai_provider', '');
       FreshRSS_Context::$user_conf->save();
     }

@@ -3,6 +3,7 @@ $oai_url = FreshRSS_Context::$user_conf->oai_url;
 $oai_key = FreshRSS_Context::$user_conf->oai_key;
 $oai_model = FreshRSS_Context::$user_conf->oai_model;
 $oai_prompt = FreshRSS_Context::$user_conf->oai_prompt;
+$oai_prompt_2 = FreshRSS_Context::$user_conf->oai_prompt_2;
 $oai_provider = FreshRSS_Context::$user_conf->oai_provider ?: 'openai'; // Default to OpenAI
 ?>
 
@@ -23,6 +24,8 @@ $oai_provider = FreshRSS_Context::$user_conf->oai_provider ?: 'openai'; // Defau
     <input type="text" name="oai_model" id="oai_model" value="<?php echo $oai_model; ?>">
     <label for="oai_prompt">Prompt (add before content)</label>
     <textarea name="oai_prompt" id="oai_prompt"><?php echo $oai_prompt; ?></textarea>
+    <label for="oai_prompt_2">Second prompt (longer summary)</label>
+    <textarea name="oai_prompt_2" id="oai_prompt_2"><?php echo $oai_prompt_2; ?></textarea>
   </div>
   <hr />
   <button type="submit">Save</button>

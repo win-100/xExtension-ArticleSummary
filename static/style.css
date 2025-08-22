@@ -15,7 +15,9 @@
   display: block;
 }
 
-.oai-summary-wrap.oai-summary-active .oai-summary-btn {
+/* Hide only the top-level summarize button when the wrapper is active,
+   keeping nested buttons such as the “+” button visible. */
+.oai-summary-wrap.oai-summary-active > .oai-summary-btn {
   display: none;
 }
 
@@ -67,4 +69,9 @@
 .oai-summary-content div {
   padding: 0;
   margin: 0;
+}
+
+.oai-summary-more {
+  display: none;
+  margin-top: 1em;
 }
