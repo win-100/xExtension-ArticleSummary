@@ -34,21 +34,21 @@ class ArticleSummaryExtension extends Minz_Extension
         'more' => 1
       )
     ));
-    $has_more = !empty(FreshRSS_Context::$user_conf->oai_prompt_2);
+    $has_more = trim((string)FreshRSS_Context::$user_conf->oai_prompt_2) !== '';
 
-      $entry->_content(
-        '<div class="oai-summary-wrap">'
-        . '<button data-request="' . $url_summary . '" class="oai-summary-btn btn btn-small" aria-label="Résumer" title="Résumer">'
-        . '<img src="' . $this->getFileUrl('img/summary.svg') . '" class="oai-summary-icon" alt="Résumé"></button>'
-        . '<div class="oai-summary-box">'
-        . '<div class="oai-summary-loader"></div>'
-        . '<div class="oai-summary-log"></div>'
-        . '<div class="oai-summary-content"></div>'
-        . ($has_more ? '<button data-request="' . $url_more . '" class="oai-summary-btn oai-summary-more btn btn-small" aria-label="Résumé plus long" title="Résumé plus long">+</button>' : '')
-        . '</div>'
-        . '</div>'
-        . $entry->content()
-      );
+    $entry->_content(
+      '<div class="oai-summary-wrap">'
+      . '<button data-request="' . $url_summary . '" class="oai-summary-btn btn btn-small" aria-label="Résumer" title="Résumer">'
+      . '<img src="' . $this->getFileUrl('img/summary.svg') . '" class="oai-summary-icon" alt="Résumé"></button>'
+      . '<div class="oai-summary-box">'
+      . '<div class="oai-summary-loader"></div>'
+      . '<div class="oai-summary-log"></div>'
+      . '<div class="oai-summary-content"></div>'
+      . ($has_more ? '<button data-request="' . $url_more . '" class="oai-summary-btn oai-summary-more btn btn-small" aria-label="Résumé plus long" title="Résumé plus long">+</button>' : '')
+      . '</div>'
+      . '</div>'
+      . $entry->content()
+    );
     return $entry;
   }
 
