@@ -3,7 +3,8 @@
 }
 
 .oai-summary-box {
-  background: var(--header-bg);
+  background: var(--frss-background-color-dark);
+  color: var(--frss-font-color-light);
   border-radius: 8px;
   padding: 0.75em;
   margin-top: 1em;
@@ -24,8 +25,8 @@
   display: none;
   width: 24px;
   height: 24px;
-  border: 4px solid var(--border-color);
-  border-top: 4px solid var(--text-color);
+  border: 4px solid var(--frss-font-color-light);
+  border-top: 4px solid var(--frss-font-color-light);
   border-radius: 50%;
   animation: oai-spin 1s linear infinite;
   margin: 0 auto 1em;
