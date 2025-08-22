@@ -14,7 +14,7 @@
 .oai-summary-log {
   font-size: 0.9em;
   margin-bottom: 1em;
-  color: var(--text-color);
+  color: inherit;
 }
 
 .oai-summary-loader {
@@ -38,7 +38,7 @@
 }
 
 .oai-summary-content {
-  color: var(--text-color);
+  color: inherit;
 }
 
 .oai-summary-content h1,
