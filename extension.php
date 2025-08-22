@@ -31,9 +31,11 @@ class ArticleSummaryExtension extends Minz_Extension
         '<div class="oai-summary-wrap">'
         . '<button data-request="' . $url_summary . '" class="oai-summary-btn btn btn-small" aria-label="Résumer" title="Résumer">'
         . '<img src="' . $this->getFileUrl('img/summary.svg') . '" class="oai-summary-icon" alt="Résumé"></button>'
+        . '<div class="oai-summary-box">'
         . '<div class="oai-summary-loader"></div>'
         . '<div class="oai-summary-log"></div>'
         . '<div class="oai-summary-content"></div>'
+        . '</div>'
         . '</div>'
         . $entry->content()
       );
