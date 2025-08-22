@@ -7,11 +7,6 @@ if (document.readyState && document.readyState !== 'loading') {
 function configureSummarizeButtons() {
   document.getElementById('global').addEventListener('click', function (e) {
     for (var target = e.target; target && target != this; target = target.parentNode) {
-      
-      if (target.matches('.flux_header')) {
-        target.nextElementSibling.querySelector('.oai-summary-btn').innerHTML = 'Summarize'
-      }
-
       if (target.matches('.oai-summary-btn')) {
         e.preventDefault();
         e.stopPropagation();
@@ -49,8 +44,6 @@ function setOaiState(container, statusType, statusMsg, summaryText) {
       button.disabled = false;
     }
   }
-
-  console.log(content);
 
   if (summaryText) {
     content.innerHTML = summaryText;
