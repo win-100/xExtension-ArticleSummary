@@ -24,7 +24,13 @@ function setOaiState(container, statusType, statusMsg, summaryText) {
   const content = container.querySelector('.oai-summary-content');
   const log = container.querySelector('.oai-summary-log');
   if (statusMsg !== null) {
-    log.textContent = statusMsg;
+    if (statusMsg === 'finish') {
+      log.textContent = '';
+      log.style.display = 'none';
+    } else {
+      log.textContent = statusMsg;
+      log.style.display = 'block';
+    }
   }
   if (statusType === 1) {
     container.classList.add('oai-loading');
@@ -40,7 +46,6 @@ function setOaiState(container, statusType, statusMsg, summaryText) {
     container.classList.remove('oai-loading');
     container.classList.remove('oai-error');
     if (statusMsg === 'finish') {
-      log.textContent = '';
       button.disabled = false;
     }
   }
