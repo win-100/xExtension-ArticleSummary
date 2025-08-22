@@ -50,7 +50,14 @@ function setOaiState(container, statusType, statusMsg, summaryText) {
     container.classList.remove('oai-error');
     if (statusMsg === 'finish') {
       button.disabled = false;
-      if (moreButton) moreButton.style.display = 'inline-block';
+      if (container.dataset.moreUsed) {
+        if (moreButton) {
+          moreButton.remove();
+        }
+        delete container.dataset.moreUsed;
+      } else if (moreButton) {
+        moreButton.style.display = 'inline-block';
+      }
     }
   }
 
@@ -63,6 +70,10 @@ async function summarizeButtonClick(target) {
   var container = target.closest('.oai-summary-wrap');
   if (container.classList.contains('oai-loading')) {
     return;
+  }
+
+  if (target.classList.contains('oai-summary-more')) {
+    container.dataset.moreUsed = '1';
   }
 
   container.classList.add('oai-summary-active');
