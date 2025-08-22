@@ -1,31 +1,32 @@
 .oai-summary-wrap {
-  
-  background: #f8f8f8;
-  padding: 1em;
-  margin-bottom: 2em;
-  border: 1px solid #888;
+
+  background: var(--content-bg);
+  padding: 0.75em;
+  margin-bottom: 1em;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
 }
 
 .oai-summary-btn {
   font-size: 1.2em;
-  margin-bottom: 0.5em;
+  margin-bottom: 1em;
 }
 
 .oai-summary-log {
   font-size: 0.9em;
-  margin-bottom: 0.5em;
-  color: #555;
+  margin-bottom: 1em;
+  color: var(--text-color);
 }
 
 .oai-summary-loader {
   display: none;
   width: 24px;
   height: 24px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #555;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--text-color);
   border-radius: 50%;
   animation: oai-spin 1s linear infinite;
-  margin: 0 auto 0.5em;
+  margin: 0 auto 1em;
 }
 
 .oai-loading .oai-summary-loader {
@@ -38,7 +39,7 @@
 }
 
 .oai-summary-content {
-  color: #000;
+  color: var(--text-color);
 }
 
 .oai-summary-content h1,
