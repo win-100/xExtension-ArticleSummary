@@ -25,9 +25,12 @@
 }
 
 .oai-summary-log {
+  display: none;
   font-size: 0.9em;
   margin-bottom: 1em;
   color: inherit;
+  font-style: italic;
+  text-align: center;
 }
 
 .oai-summary-loader {
