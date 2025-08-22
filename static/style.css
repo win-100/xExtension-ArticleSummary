@@ -68,3 +68,8 @@
   padding: 0;
   margin: 0;
 }
+
+.oai-summary-more {
+  display: none;
+  margin-top: 1em;
+}
