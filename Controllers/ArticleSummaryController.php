@@ -143,7 +143,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           'voice' => $voice,
           'input' => $content,
           'stream' => true,
-          'response_format' => 'opus',
+          'response_format' => 'wav',
         ),
         'provider' => 'openai',
         'error' => null
@@ -193,7 +193,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           'oai_key' => $oai_key,
           'model' => $tts_model,
           'voice' => $voice,
-          'response_format' => 'opus',
+          'response_format' => 'wav',
         ),
         'error' => null
       ),

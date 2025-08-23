@@ -71,8 +71,8 @@ if ($voice !== 'my-voice') {
     exit(1);
 }
 
-if ($format !== 'opus') {
-    echo "Format mismatch: expected opus, got {$format}\n";
+if ($format !== 'wav') {
+    echo "Format mismatch: expected wav, got {$format}\n";
     exit(1);
 }
 
@@ -93,8 +93,8 @@ if ($input !== 'Speak me') {
     exit(1);
 }
 
-if ($speakFormat !== 'opus') {
-    echo "Speak format mismatch: expected opus, got {$speakFormat}\n";
+if ($speakFormat !== 'wav') {
+    echo "Speak format mismatch: expected wav, got {$speakFormat}\n";
     exit(1);
 }
 
