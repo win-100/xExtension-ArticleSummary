@@ -68,7 +68,8 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
             "content" => "input: \n" . $content,
           ]
         ],
-        // `max_tokens` is deprecated; use `max_completion_tokens` instead.
+        "reasoning": { "effort": "minimal" },
+        "verbosity": "low",
         "max_completion_tokens" => 2048, // You can adjust the length of the summary as needed.
         "temperature" => 1, // gpt-5-nano expects 1
         "n" => 1 // Generate summary
