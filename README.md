@@ -22,7 +22,7 @@ To configure the extension, follow these steps:
 
 1. **Base URL**: Enter the base URL of your language model API (e.g., `https://api.openai.com/`). Note that the URL should not include the version path (e.g., `/v1`).
 2. **API Key**: Provide your API key for authentication.
-3. **Model Name**: Specify the model name you wish to use for summarization (e.g., `gpt-3.5-turbo`).
+3. **Model Name**: Specify the model name you wish to use for summarization (e.g., `gpt-5-nano`).
 4. **Prompt**: Add a prompt that will be included before the article content when sending the request to the API.
 
 ## Usage
