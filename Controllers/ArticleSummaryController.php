@@ -109,14 +109,14 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
     $oai_url = FreshRSS_Context::$user_conf->oai_url;
     $oai_key = FreshRSS_Context::$user_conf->oai_key;
     $tts_model = FreshRSS_Context::$user_conf->oai_tts_model;
-    $tts_voice = FreshRSS_Context::$user_conf->oai_tts_voice;
+    $voice = FreshRSS_Context::$user_conf->oai_voice;
     $content = Minz_Request::param('content');
 
     if (
       $this->isEmpty($oai_url) ||
       $this->isEmpty($oai_key) ||
       $this->isEmpty($tts_model) ||
-      $this->isEmpty($tts_voice) ||
+      $this->isEmpty($voice) ||
       $this->isEmpty($content)
     ) {
       echo json_encode(array(
@@ -140,7 +140,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           'oai_url' => $oai_url . '/audio/speech',
           'oai_key' => $oai_key,
           'model' => $tts_model,
-          'voice' => $tts_voice,
+          'voice' => $voice,
           'input' => $content,
         ),
         'provider' => 'openai',
@@ -161,13 +161,13 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
     $oai_url = FreshRSS_Context::$user_conf->oai_url;
     $oai_key = FreshRSS_Context::$user_conf->oai_key;
     $tts_model = FreshRSS_Context::$user_conf->oai_tts_model;
-    $tts_voice = FreshRSS_Context::$user_conf->oai_tts_voice;
+    $voice = FreshRSS_Context::$user_conf->oai_voice;
 
     if (
       $this->isEmpty($oai_url) ||
       $this->isEmpty($oai_key) ||
       $this->isEmpty($tts_model) ||
-      $this->isEmpty($tts_voice)
+      $this->isEmpty($voice)
     ) {
       echo json_encode(array(
         'response' => array(
@@ -190,7 +190,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           'oai_url' => $oai_url,
           'oai_key' => $oai_key,
           'model' => $tts_model,
-          'voice' => $tts_voice,
+          'voice' => $voice,
         ),
         'error' => null
       ),
