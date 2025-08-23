@@ -1,12 +1,14 @@
 # FreshRSS Article Summary Extension
 
-This extension for FreshRSS allows users to generate summaries of articles using a language model API that conforms to the OpenAI API specification. The extension provides a user-friendly interface to configure the API endpoint, API key, model name, and a prompt to be added before the content. When activated, it adds a "summarize" button to each article, which, when clicked, sends the article content to the configured API for summarization.
+This project is a fork of [LiangWei88/xExtension-ArticleSummary](https://github.com/LiangWei88/xExtension-ArticleSummary), updated to better integrate with FreshRSS and to leverage the latest OpenAI API models. In addition to the original summarization capabilities, this version allows users to generate two types of summaries: a concise short summary and a more detailed long summary.
 
 ## Features
-
-- **API Configuration**: Easily configure the base URL, API key, model name, and prompt through a simple form.
+- **Forked and Modernized**: Originates from the LiangWei88 project but refactored for smoother integration and maintenance within FreshRSS.
+- **Latest OpenAI Model**: Uses the most recent OpenAI model by default for higher quality summaries.
+- **Two Summary Lengths**: Users can request either a short summary for quick insight or a long summary for deeper understanding.
+- **API Configuration**: Configure the base URL, API key, model name, and prompt through a simple form.
 - **Summarize Button**: Adds a "summarize" button to each article, allowing users to generate a summary with a single click.
-- **Markdown Support**: Converts HTML content to Markdown before sending it to the API, ensuring compatibility with various language models.
+- **Markdown Support**: Converts HTML content to Markdown before sending it to the API.
 - **Error Handling**: Provides feedback in case of API errors or incomplete configurations.
 - **Smart Fallback**: Uses the article's description if the main content is empty or contains only images.
 
@@ -18,19 +20,18 @@ This extension for FreshRSS allows users to generate summaries of articles using
 
 ## Configuration
 
-To configure the extension, follow these steps:
-
-1. **Base URL**: Enter the base URL of your language model API (e.g., `https://api.openai.com/`). Note that the URL should not include the version path (e.g., `/v1`).
+1. **Base URL**: Enter the base URL of your language model API (e.g., `https://api.openai.com/`). Do not include the version path (e.g., `/v1`).
 2. **API Key**: Provide your API key for authentication.
-3. **Model Name**: Specify the model name you wish to use for summarization (e.g., `gpt-5-nano`).
+3. **Model Name**: Specify the model name you wish to use for summarization (e.g., `gpt-4.1`).
 4. **Prompt**: Add a prompt that will be included before the article content when sending the request to the API.
+5. **Summary Type**: Choose between "short" and "long" summary outputs.
 
 ## Usage
 
-Once configured, the extension will automatically add a "summarize" button to each article. Clicking this button will:
+Once configured, the extension will automatically add a "summarize" button to each article. Clicking the button will:
 
 1. Send the article content to the configured API.
-2. Display the generated summary below the button.
+2. Display both the short and long summaries below the button.
 
 ## Dependencies
 
@@ -47,13 +48,12 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Acknowledgments
 
+- Original project by [LiangWei88](https://github.com/LiangWei88/xExtension-ArticleSummary).
 - Thanks to the FreshRSS community for providing a robust platform for RSS management.
-- Inspired by the need for efficient article summarization tools.
 
 ## History
 - Version: 0.1.1 (2024-11-20)
-  > **Bug Fix**: Prevented the summary button from affecting the title list display. Previously, the 'entry_before_display' hook was causing the summary button to be added to the title list, leading to display issues. Now, the button initially has no text and adds text only when the article is clicked to be displayed.
+  > **Bug Fix**: Prevented the summary button from affecting the title list display. Previously, the `entry_before_display` hook was causing the summary button to appear in the title list, leading to display issues. Now, the button initially has no text and adds text only when the article is displayed.
 
 ---
-
 For any questions or support, please open an issue on this repository.
