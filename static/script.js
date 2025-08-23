@@ -138,6 +138,7 @@ async function ttsButtonClick(target) {
   const data = new URLSearchParams();
   data.append('ajax', 'true');
   data.append('_csrf', context.csrf);
+  data.append('content', text);
 
   target.disabled = true;
   log.textContent = 'Preparing audio...';
@@ -159,10 +160,10 @@ async function ttsButtonClick(target) {
     const body = {
       model: params.model,
       voice: params.voice,
-      input: text
+      input: params.input
     };
 
-    const audioResp = await fetch(params.oai_url + '/audio/speech', {
+    const audioResp = await fetch(params.oai_url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

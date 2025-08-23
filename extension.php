@@ -38,7 +38,7 @@ class ArticleSummaryExtension extends Minz_Extension
 
     $url_tts = Minz_Url::display(array(
       'c' => 'ArticleSummary',
-      'a' => 'fetchTtsParams'
+      'a' => 'speak'
     ));
     $icon_tts = str_replace('<svg ', '<svg class="oai-tts-icon" ', file_get_contents(__DIR__ . '/static/img/play.svg'));
     $icon = str_replace('<svg ', '<svg class="oai-summary-icon" ', file_get_contents(__DIR__ . '/static/img/summary.svg'));
