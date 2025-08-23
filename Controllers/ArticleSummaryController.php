@@ -142,6 +142,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           'model' => $tts_model,
           'voice' => $voice,
           'input' => $content,
+          'stream' => true,
         ),
         'provider' => 'openai',
         'error' => null
