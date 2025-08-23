@@ -6,8 +6,9 @@ require __DIR__ . '/../Controllers/ArticleSummaryController.php';
 class Minz_ActionController {}
 class FreshRSS_Context { public static $user_conf; }
 class Minz_Request {
+    public static $params = [];
     public static function param($name) {
-        return null; // No 'more' or 'id' parameter needed for this test
+        return self::$params[$name] ?? null; // No 'more' or 'id' parameter needed for this test
     }
 }
 class FreshRSS_Factory {
@@ -70,3 +71,18 @@ if ($voice !== 'my-voice') {
 }
 
 echo "Voice matches configuration\n";
+
+// Test speakAction()
+Minz_Request::$params = ['content' => 'Speak me'];
+ob_start();
+$controller->speakAction();
+$speakOutput = ob_get_clean();
+$speakData = json_decode($speakOutput, true);
+$input = $speakData['response']['data']['input'] ?? null;
+
+if ($input !== 'Speak me') {
+    echo "Input mismatch: expected Speak me, got {$input}\n";
+    exit(1);
+}
+
+echo "Speak action returns input\n";
