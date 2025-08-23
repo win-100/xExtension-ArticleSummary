@@ -1,5 +1,13 @@
 .oai-summary-wrap {
   margin-bottom: 1em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.oai-summary-wrap > .oai-summary-box {
+  flex-basis: 100%;
 }
 
 .oai-summary-box {
@@ -22,6 +30,12 @@
 }
 
 .oai-summary-btn .oai-summary-icon {
+  width: 1em;
+  height: 1em;
+  color: var(--frss-font-color-light);
+}
+
+.oai-tts-btn .oai-tts-icon {
   width: 1em;
   height: 1em;
   color: var(--frss-font-color-light);
