@@ -57,7 +57,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           // Determine whether the URL ends with a version. If it does, no version information is added. If not, /v1 is added by default.
           "oai_url" => $oai_url . '/responses',
           "oai_key" => $oai_key,
-          "model" => 'gpt-5-nano',
+          "model" => $oai_model,
           "input" => [
             [
               "role" => "system",
