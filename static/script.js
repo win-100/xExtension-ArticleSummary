@@ -190,7 +190,7 @@ async function ttsButtonClick(target) {
       voice: params.voice,
       input: params.input,
       stream: params.stream,
-      format: params.format
+      response_format: params.response_format
     };
 
     const controller = new AbortController();
