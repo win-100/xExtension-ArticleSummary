@@ -145,11 +145,13 @@ async function sendOpenAIRequest(container, oaiParams) {
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
-        if (buffer) {
+        if (buffer.trim()) {
           try {
             const json = JSON.parse(buffer.trim());
-            text += json.choices?.[0]?.message?.content || json.choices?.[0]?.delta?.content || '';
-            setOaiState(container, 0, null, marked.parse(text));
+            if (json.output_text) {
+              text += json.output_text;
+              setOaiState(container, 0, null, marked.parse(text));
+            }
           } catch (e) {
             console.error('Error parsing final JSON:', e, 'Chunk:', buffer);
             setOaiState(container, 2, 'Request Failed (4)', null);
@@ -160,27 +162,31 @@ async function sendOpenAIRequest(container, oaiParams) {
       }
       buffer += decoder.decode(value, { stream: true });
 
-      // Split buffer on line delimiters and "data:" blocks
+      // Split buffer into Server-Sent Events
       let parts = buffer.split(/\n\n/);
       buffer = parts.pop();
       for (let part of parts) {
-        part = part.trim();
-        if (!part) continue;
-        if (part.startsWith('data:')) {
-          part = part.slice(5).trim();
-        }
-        if (part === '[DONE]') {
+        const lines = part.trim().split('\n');
+        const dataLine = lines.find(l => l.startsWith('data:'));
+        if (!dataLine) continue;
+        let data = dataLine.slice(5).trim();
+        if (data === '[DONE]') {
           setOaiState(container, 0, 'finish', null);
           return;
         }
         try {
-          const json = JSON.parse(part);
-          text += json.choices?.[0]?.delta?.content || '';
-          setOaiState(container, 0, null, marked.parse(text));
+          const json = JSON.parse(data);
+          if (json.type === 'response.completed') {
+            setOaiState(container, 0, 'finish', null);
+            return;
+          }
+          const delta = json.delta || json.output_text || '';
+          if (delta) {
+            text += delta;
+            setOaiState(container, 0, null, marked.parse(text));
+          }
         } catch (e) {
-          // If JSON parsing fails, keep the incomplete part in the buffer
-          console.error('Error parsing JSON:', e, 'Chunk:', part);
-          buffer = part + '\n\n' + buffer;
+          console.error('Error parsing JSON:', e, 'Chunk:', data);
         }
       }
     }

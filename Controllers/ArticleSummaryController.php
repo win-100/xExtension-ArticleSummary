@@ -55,24 +55,23 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
       'response' => array(
         'data' => array(
           // Determine whether the URL ends with a version. If it does, no version information is added. If not, /v1 is added by default.
-          "oai_url" => $oai_url . '/chat/completions',
+          "oai_url" => $oai_url . '/responses',
           "oai_key" => $oai_key,
-          "model" => $oai_model,
-          "messages" => [
+          "model" => 'gpt-5-nano',
+          "input" => [
             [
               "role" => "system",
               "content" => $oai_prompt
+            ],
+            [
+              "role" => "user",
+              "content" => "input: \n" . $content,
+            ]
           ],
-          [
-            "role" => "user",
-            "content" => "input: \n" . $content,
-          ]
-        ],
-        "reasoning": { "effort": "minimal" },
-        "verbosity": "low",
-        "max_completion_tokens" => 2048, // You can adjust the length of the summary as needed.
-        "temperature" => 1, // gpt-5-nano expects 1
-        "n" => 1 // Generate summary
+          "reasoning" => [ "effort" => "minimal" ],
+          "max_output_tokens" => 2048, // You can adjust the length of the summary as needed.
+          "temperature" => 1, // gpt-5-nano expects 1
+          "stream" => true
       ),
       'provider' => 'openai',
       'error' => null
