@@ -21,9 +21,10 @@
   display: none;
 }
 
-.oai-summary-btn img {
+.oai-summary-btn .oai-summary-icon {
   width: 1em;
   height: 1em;
+  color: var(--frss-font-color-light);
 }
 
 .oai-summary-log {

@@ -36,10 +36,12 @@ class ArticleSummaryExtension extends Minz_Extension
     ));
     $has_more = trim((string)FreshRSS_Context::$user_conf->oai_prompt_2) !== '';
 
+    $icon = str_replace('<svg ', '<svg class="oai-summary-icon" ', file_get_contents(__DIR__ . '/static/img/summary.svg'));
+
     $entry->_content(
       '<div class="oai-summary-wrap">'
       . '<button data-request="' . $url_summary . '" class="oai-summary-btn btn btn-small" aria-label="Résumer" title="Résumer">'
-      . '<img src="' . $this->getFileUrl('img/summary.svg') . '" class="oai-summary-icon" alt="Résumé"></button>'
+      . $icon . '</button>'
       . '<div class="oai-summary-box">'
       . '<div class="oai-summary-loader"></div>'
       . '<div class="oai-summary-log"></div>'
