@@ -41,6 +41,18 @@
   color: var(--frss-font-color-light);
 }
 
+.oai-tts-btn .oai-tts-pause {
+  display: none;
+}
+
+.oai-tts-btn.oai-playing .oai-tts-play {
+  display: none;
+}
+
+.oai-tts-btn.oai-playing .oai-tts-pause {
+  display: inline;
+}
+
 .oai-summary-log {
   display: none;
   font-size: 0.9em;

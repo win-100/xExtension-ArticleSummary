@@ -127,6 +127,22 @@ async function summarizeButtonClick(target) {
 }
 
 async function ttsButtonClick(target) {
+  // Toggle play/pause if audio already loaded
+  if (target._audio) {
+    if (target._audio.paused) {
+      target._audio.play();
+      target.classList.add('oai-playing');
+      target.setAttribute('aria-label', 'Pause');
+      target.setAttribute('title', 'Pause');
+    } else {
+      target._audio.pause();
+      target.classList.remove('oai-playing');
+      target.setAttribute('aria-label', 'Lire');
+      target.setAttribute('title', 'Lire');
+    }
+    return;
+  }
+
   const container = target.closest('.oai-summary-wrap');
   const log = container.querySelector('.oai-summary-log');
   const text = container.querySelector('.oai-summary-content').textContent.trim();
@@ -179,7 +195,16 @@ async function ttsButtonClick(target) {
     const blob = await audioResp.blob();
     const audioUrl = URL.createObjectURL(blob);
     const audio = new Audio(audioUrl);
+    target._audio = audio;
+    audio.addEventListener('ended', () => {
+      target.classList.remove('oai-playing');
+      target.setAttribute('aria-label', 'Lire');
+      target.setAttribute('title', 'Lire');
+    });
     audio.play();
+    target.classList.add('oai-playing');
+    target.setAttribute('aria-label', 'Pause');
+    target.setAttribute('title', 'Pause');
     log.textContent = '';
     log.style.display = 'none';
   } catch (err) {
