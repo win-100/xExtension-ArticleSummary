@@ -210,8 +210,8 @@ async function ttsButtonClick(target) {
       throw new Error('Audio request failed');
     }
 
-    const mimeType = audioResp.headers.get('Content-Type') || 'audio/wav';
-    const sourceType = mimeType.includes('wav') ? 'audio/wav' : mimeType;
+    const mimeType = audioResp.headers.get('Content-Type') || 'audio/ogg';
+    const sourceType = mimeType.includes('ogg') ? 'audio/ogg; codecs=opus' : mimeType;
     if (!MediaSource.isTypeSupported(sourceType)) {
       throw new Error('Unsupported audio format');
     }
