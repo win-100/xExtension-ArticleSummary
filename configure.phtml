@@ -1,7 +1,7 @@
 <?php
-$oai_url = FreshRSS_Context::$user_conf->oai_url;
+$oai_url   = FreshRSS_Context::$user_conf->oai_url   ?: 'https://api.openai.com';
 $oai_key = FreshRSS_Context::$user_conf->oai_key;
-$oai_model = FreshRSS_Context::$user_conf->oai_model;
+$oai_model = FreshRSS_Context::$user_conf->oai_model ?: 'gpt-5-nano';
 $oai_prompt = FreshRSS_Context::$user_conf->oai_prompt;
 $oai_prompt_2 = FreshRSS_Context::$user_conf->oai_prompt_2;
 $oai_provider = FreshRSS_Context::$user_conf->oai_provider ?: 'openai'; // Default to OpenAI
