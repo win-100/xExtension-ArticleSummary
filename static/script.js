@@ -145,7 +145,8 @@ async function ttsButtonClick(target) {
 
   const container = target.closest('.oai-summary-wrap');
   const log = container.querySelector('.oai-summary-log');
-  const text = container.querySelector('.oai-summary-content').textContent.trim();
+  const article = container.querySelector('.oai-summary-article');
+  const text = article ? article.textContent.trim() : '';
   if (!text) {
     return;
   }
