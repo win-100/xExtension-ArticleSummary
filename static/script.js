@@ -189,7 +189,8 @@ async function ttsButtonClick(target) {
       model: params.model,
       voice: params.voice,
       input: params.input,
-      stream: params.stream
+      stream: params.stream,
+      format: params.format
     };
 
     const controller = new AbortController();
@@ -209,7 +210,11 @@ async function ttsButtonClick(target) {
       throw new Error('Audio request failed');
     }
 
-    const mimeType = audioResp.headers.get('Content-Type') || 'audio/mpeg';
+    const mimeType = audioResp.headers.get('Content-Type') || 'audio/ogg';
+    const sourceType = mimeType.includes('ogg') ? 'audio/ogg; codecs=opus' : mimeType;
+    if (!MediaSource.isTypeSupported(sourceType)) {
+      throw new Error('Unsupported audio format');
+    }
     const mediaSource = new MediaSource();
     const audioUrl = URL.createObjectURL(mediaSource);
     const audio = new Audio(audioUrl);
@@ -221,7 +226,7 @@ async function ttsButtonClick(target) {
     });
 
     mediaSource.addEventListener('sourceopen', async () => {
-      const sourceBuffer = mediaSource.addSourceBuffer(mimeType);
+      const sourceBuffer = mediaSource.addSourceBuffer(sourceType);
       const reader = audioResp.body.getReader();
       let started = false;
       try {
