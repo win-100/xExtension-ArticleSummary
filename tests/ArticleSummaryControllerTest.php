@@ -32,6 +32,8 @@ FreshRSS_Context::$user_conf = (object) [
     'oai_prompt' => 'prompt',
     'oai_prompt_2' => 'prompt2',
     'oai_provider' => 'openai',
+    'oai_tts_model' => 'my-tts-model',
+    'oai_tts_voice' => 'my-voice',
 ];
 
 // Capture the output of summarizeAction()
@@ -54,3 +56,17 @@ if ($model !== 'my-configured-model') {
 }
 
 echo "Model matches configuration\n";
+
+// Test fetchTtsParamsAction()
+ob_start();
+$controller->fetchTtsParamsAction();
+$ttsOutput = ob_get_clean();
+$ttsData = json_decode($ttsOutput, true);
+$voice = $ttsData['response']['data']['voice'] ?? null;
+
+if ($voice !== 'my-voice') {
+    echo "Voice mismatch: expected my-voice, got {$voice}\n";
+    exit(1);
+}
+
+echo "Voice matches configuration\n";

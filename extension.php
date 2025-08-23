@@ -36,12 +36,16 @@ class ArticleSummaryExtension extends Minz_Extension
     ));
     $has_more = trim((string)FreshRSS_Context::$user_conf->oai_prompt_2) !== '';
 
+    $url_tts = Minz_Url::display(array(
+      'c' => 'ArticleSummary',
+      'a' => 'fetchTtsParams'
+    ));
     $icon_tts = str_replace('<svg ', '<svg class="oai-tts-icon" ', file_get_contents(__DIR__ . '/static/img/play.svg'));
     $icon = str_replace('<svg ', '<svg class="oai-summary-icon" ', file_get_contents(__DIR__ . '/static/img/summary.svg'));
 
     $entry->_content(
       '<div class="oai-summary-wrap">'
-      . '<button class="oai-tts-btn btn btn-small" aria-label="Lire" title="Lire">' . $icon_tts . '</button>'
+      . '<button data-request="' . $url_tts . '" class="oai-tts-btn btn btn-small" aria-label="Lire" title="Lire">' . $icon_tts . '</button>'
       . '<button data-request="' . $url_summary . '" class="oai-summary-btn btn btn-small" aria-label="Résumer" title="Résumer">'
       . $icon . '</button>'
       . '<div class="oai-summary-box">'
@@ -65,6 +69,8 @@ class ArticleSummaryExtension extends Minz_Extension
       FreshRSS_Context::$user_conf->oai_prompt = Minz_Request::param('oai_prompt', '');
       FreshRSS_Context::$user_conf->oai_prompt_2 = Minz_Request::param('oai_prompt_2', '');
       FreshRSS_Context::$user_conf->oai_provider = Minz_Request::param('oai_provider', '');
+      FreshRSS_Context::$user_conf->oai_tts_model = Minz_Request::param('oai_tts_model', '');
+      FreshRSS_Context::$user_conf->oai_tts_voice = Minz_Request::param('oai_tts_voice', '');
       FreshRSS_Context::$user_conf->save();
     }
   }

@@ -101,6 +101,54 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
     return;
   }
 
+  public function fetchTtsParamsAction()
+  {
+    $this->view->_layout(false);
+    header('Content-Type: application/json');
+
+    $oai_url = FreshRSS_Context::$user_conf->oai_url;
+    $oai_key = FreshRSS_Context::$user_conf->oai_key;
+    $tts_model = FreshRSS_Context::$user_conf->oai_tts_model;
+    $tts_voice = FreshRSS_Context::$user_conf->oai_tts_voice;
+
+    if (
+      $this->isEmpty($oai_url) ||
+      $this->isEmpty($oai_key) ||
+      $this->isEmpty($tts_model) ||
+      $this->isEmpty($tts_voice)
+    ) {
+      echo json_encode(array(
+        'response' => array(
+          'data' => 'missing config',
+          'error' => 'configuration'
+        ),
+        'status' => 200
+      ));
+      return;
+    }
+
+    $oai_url = rtrim($oai_url, '/');
+    if (!preg_match('/\/v\d+\/?$/', $oai_url)) {
+      $oai_url .= '/v1';
+    }
+
+    $successResponse = array(
+      'response' => array(
+        'data' => array(
+          'oai_url' => $oai_url,
+          'oai_key' => $oai_key,
+          'model' => $tts_model,
+          'voice' => $tts_voice,
+        ),
+        'error' => null
+      ),
+      'status' => 200
+    );
+
+    echo json_encode($successResponse);
+    return;
+  }
+
   private function isEmpty($item)
   {
     return $item === null || trim($item) === '';

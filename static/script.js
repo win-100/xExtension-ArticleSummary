@@ -15,6 +15,14 @@ function configureSummarizeButtons() {
         }
         break;
       }
+      if (target.matches('.oai-tts-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (target.dataset.request) {
+          ttsButtonClick(target);
+        }
+        break;
+      }
     }
   }, false);
 }
@@ -115,6 +123,70 @@ async function summarizeButtonClick(target) {
   } catch (error) {
     console.error(error);
     setOaiState(container, 2, 'Request Failed (2)', null);
+  }
+}
+
+async function ttsButtonClick(target) {
+  const container = target.closest('.oai-summary-wrap');
+  const log = container.querySelector('.oai-summary-log');
+  const text = container.querySelector('.oai-summary-content').textContent.trim();
+  if (!text) {
+    return;
+  }
+
+  const url = target.dataset.request;
+  const data = new URLSearchParams();
+  data.append('ajax', 'true');
+  data.append('_csrf', context.csrf);
+
+  target.disabled = true;
+  log.textContent = 'Preparing audio...';
+  log.style.display = 'block';
+
+  try {
+    const response = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+
+    const xresp = response.data;
+    if (response.status !== 200 || !xresp.response || !xresp.response.data || xresp.response.error) {
+      throw new Error('Request Failed');
+    }
+
+    const params = xresp.response.data;
+    const body = {
+      model: params.model,
+      voice: params.voice,
+      input: text
+    };
+
+    const audioResp = await fetch(params.oai_url + '/audio/speech', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${params.oai_key}`
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!audioResp.ok) {
+      throw new Error('Audio request failed');
+    }
+
+    const blob = await audioResp.blob();
+    const audioUrl = URL.createObjectURL(blob);
+    const audio = new Audio(audioUrl);
+    audio.play();
+    log.textContent = '';
+    log.style.display = 'none';
+  } catch (err) {
+    console.error(err);
+    log.textContent = 'Audio failed';
+    log.style.display = 'block';
+  } finally {
+    target.disabled = false;
   }
 }
 
