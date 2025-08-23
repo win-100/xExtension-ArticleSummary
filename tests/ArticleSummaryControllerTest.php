@@ -34,7 +34,7 @@ FreshRSS_Context::$user_conf = (object) [
     'oai_prompt_2' => 'prompt2',
     'oai_provider' => 'openai',
     'oai_tts_model' => 'my-tts-model',
-    'oai_tts_voice' => 'my-voice',
+    'oai_voice' => 'my-voice',
 ];
 
 // Capture the output of summarizeAction()

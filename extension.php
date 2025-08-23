@@ -70,7 +70,7 @@ class ArticleSummaryExtension extends Minz_Extension
       FreshRSS_Context::$user_conf->oai_prompt_2 = Minz_Request::param('oai_prompt_2', '');
       FreshRSS_Context::$user_conf->oai_provider = Minz_Request::param('oai_provider', '');
       FreshRSS_Context::$user_conf->oai_tts_model = Minz_Request::param('oai_tts_model', '');
-      FreshRSS_Context::$user_conf->oai_tts_voice = Minz_Request::param('oai_tts_voice', '');
+      FreshRSS_Context::$user_conf->oai_voice = Minz_Request::param('oai_voice', '');
       FreshRSS_Context::$user_conf->save();
     }
   }
