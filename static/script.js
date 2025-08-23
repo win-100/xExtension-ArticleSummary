@@ -193,6 +193,15 @@ async function ttsButtonClick(target) {
       response_format: params.response_format
     };
 
+    if (!('MediaSource' in window) || !MediaSource.isTypeSupported('audio/ogg; codecs=opus')) {
+      const testAudio = document.createElement('audio');
+      if (testAudio.canPlayType('audio/mpeg')) {
+        body.response_format = 'mp3';
+      } else if (testAudio.canPlayType('audio/ogg; codecs=opus')) {
+        body.response_format = 'ogg';
+      }
+    }
+
     const controller = new AbortController();
     target._abortController = controller;
 
@@ -211,8 +220,32 @@ async function ttsButtonClick(target) {
     }
 
     const mimeType = audioResp.headers.get('Content-Type') || 'audio/ogg';
-    const sourceType = mimeType.includes('ogg') ? 'audio/ogg; codecs=opus' : mimeType;
-    if (!MediaSource.isTypeSupported(sourceType)) {
+    let sourceType = mimeType.includes('ogg') ? 'audio/ogg; codecs=opus' : mimeType;
+    if (mimeType === 'audio/opus') {
+      sourceType = 'audio/ogg; codecs=opus';
+    }
+
+    const testAudio = document.createElement('audio');
+    const mseSupported = typeof MediaSource !== 'undefined' && MediaSource.isTypeSupported(sourceType);
+    if (!mseSupported) {
+      if (testAudio.canPlayType(sourceType)) {
+        const blobUrl = URL.createObjectURL(await audioResp.blob());
+        const audio = new Audio(blobUrl);
+        target._audio = audio;
+        audio.addEventListener('ended', () => {
+          target.classList.remove('oai-playing');
+          target.setAttribute('aria-label', 'Lire');
+          target.setAttribute('title', 'Lire');
+        });
+        target.classList.add('oai-playing');
+        target.setAttribute('aria-label', 'Pause');
+        target.setAttribute('title', 'Pause');
+        log.textContent = '';
+        log.style.display = 'none';
+        target._abortController = null;
+        audio.play();
+        return;
+      }
       throw new Error('Unsupported audio format');
     }
     const mediaSource = new MediaSource();
