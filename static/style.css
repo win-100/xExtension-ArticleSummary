@@ -10,6 +10,10 @@
   flex-basis: 100%;
 }
 
+.oai-summary-wrap > .oai-summary-article {
+  flex-basis: 100%;
+}
+
 .oai-summary-box {
   display: none;
   background: var(--frss-background-color-dark);

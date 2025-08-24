@@ -127,7 +127,10 @@ async function summarizeButtonClick(target) {
 }
 
 async function ttsButtonClick(target) {
-  // Toggle play/pause if audio already loaded
+  const container = target.closest('.oai-summary-wrap');
+  const log = container.querySelector('.oai-summary-log');
+
+  // Toggle play/pause or cancel if audio already loaded
   if (target._audio) {
     if (target._audio.paused) {
       target._audio.play();
@@ -135,7 +138,17 @@ async function ttsButtonClick(target) {
       target.setAttribute('aria-label', 'Pause');
       target.setAttribute('title', 'Pause');
     } else {
-      target._audio.pause();
+      if (target._abortController) {
+        target._abortController.abort();
+        target._abortController = null;
+        URL.revokeObjectURL(target._audio.src);
+        target._audio.pause();
+        target._audio = null;
+        log.textContent = '';
+        log.style.display = 'none';
+      } else {
+        target._audio.pause();
+      }
       target.classList.remove('oai-playing');
       target.setAttribute('aria-label', 'Lire');
       target.setAttribute('title', 'Lire');
@@ -143,9 +156,8 @@ async function ttsButtonClick(target) {
     return;
   }
 
-  const container = target.closest('.oai-summary-wrap');
-  const log = container.querySelector('.oai-summary-log');
-  const text = container.querySelector('.oai-summary-content').textContent.trim();
+  const article = container.querySelector('.oai-summary-article');
+  const text = article ? article.textContent.trim() : '';
   if (!text) {
     return;
   }
@@ -176,8 +188,22 @@ async function ttsButtonClick(target) {
     const body = {
       model: params.model,
       voice: params.voice,
-      input: params.input
+      input: params.input,
+      stream: params.stream,
+      response_format: params.response_format
     };
+
+    if (!('MediaSource' in window) || !MediaSource.isTypeSupported('audio/ogg; codecs=opus')) {
+      const testAudio = document.createElement('audio');
+      if (testAudio.canPlayType('audio/mpeg')) {
+        body.response_format = 'mp3';
+      } else if (testAudio.canPlayType('audio/ogg; codecs=opus')) {
+        body.response_format = 'ogg';
+      }
+    }
+
+    const controller = new AbortController();
+    target._abortController = controller;
 
     const audioResp = await fetch(params.oai_url, {
       method: 'POST',
@@ -185,15 +211,54 @@ async function ttsButtonClick(target) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${params.oai_key}`
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: controller.signal
     });
 
     if (!audioResp.ok) {
       throw new Error('Audio request failed');
     }
 
-    const blob = await audioResp.blob();
-    const audioUrl = URL.createObjectURL(blob);
+    const mimeType = audioResp.headers.get('Content-Type') || 'audio/ogg';
+    let sourceType = mimeType.includes('ogg') ? 'audio/ogg; codecs=opus' : mimeType;
+    if (mimeType === 'audio/opus') {
+      sourceType = 'audio/ogg; codecs=opus';
+    }
+
+    const testAudio = document.createElement('audio');
+    const mseSupported = typeof MediaSource !== 'undefined' && MediaSource.isTypeSupported(sourceType);
+    if (!mseSupported) {
+      if (testAudio.canPlayType(sourceType)) {
+        const blobUrl = URL.createObjectURL(await audioResp.blob());
+        const audio = new Audio(blobUrl);
+        target._audio = audio;
+        audio.addEventListener('ended', () => {
+          target.classList.remove('oai-playing');
+          target.setAttribute('aria-label', 'Lire');
+          target.setAttribute('title', 'Lire');
+        });
+        target.classList.add('oai-playing');
+        target.setAttribute('aria-label', 'Pause');
+        target.setAttribute('title', 'Pause');
+        log.textContent = '';
+        log.style.display = 'none';
+        target._abortController = null;
+        try {
+          await audio.play();
+        } catch (err) {
+          console.error('Playback failed', err);
+          log.textContent = 'Audio playback failed';
+          log.style.display = 'block';
+          target.classList.remove('oai-playing');
+          target.setAttribute('aria-label', 'Lire');
+          target.setAttribute('title', 'Lire');
+        }
+        return;
+      }
+      throw new Error('Unsupported audio format');
+    }
+    const mediaSource = new MediaSource();
+    const audioUrl = URL.createObjectURL(mediaSource);
     const audio = new Audio(audioUrl);
     target._audio = audio;
     audio.addEventListener('ended', () => {
@@ -201,16 +266,58 @@ async function ttsButtonClick(target) {
       target.setAttribute('aria-label', 'Lire');
       target.setAttribute('title', 'Lire');
     });
-    audio.play();
-    target.classList.add('oai-playing');
-    target.setAttribute('aria-label', 'Pause');
-    target.setAttribute('title', 'Pause');
-    log.textContent = '';
-    log.style.display = 'none';
+
+    mediaSource.addEventListener('sourceopen', async () => {
+      const sourceBuffer = mediaSource.addSourceBuffer(sourceType);
+      const reader = audioResp.body.getReader();
+      let started = false;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            sourceBuffer.addEventListener('updateend', () => mediaSource.endOfStream(), { once: true });
+            break;
+          }
+          sourceBuffer.appendBuffer(value);
+          await new Promise(res => sourceBuffer.addEventListener('updateend', res, { once: true }));
+          if (!started) {
+            try {
+              await audio.play();
+              target.classList.add('oai-playing');
+              target.setAttribute('aria-label', 'Pause');
+              target.setAttribute('title', 'Pause');
+              log.textContent = '';
+              log.style.display = 'none';
+              started = true;
+            } catch (err) {
+              console.error('Playback failed', err);
+              log.textContent = 'Audio playback failed';
+              log.style.display = 'block';
+              target.classList.remove('oai-playing');
+              target.setAttribute('aria-label', 'Lire');
+              target.setAttribute('title', 'Lire');
+            }
+          }
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error(err);
+          log.textContent = 'Audio failed';
+          log.style.display = 'block';
+          target.classList.remove('oai-playing');
+          target.setAttribute('aria-label', 'Lire');
+          target.setAttribute('title', 'Lire');
+        }
+      } finally {
+        target._abortController = null;
+      }
+    });
   } catch (err) {
     console.error(err);
-    log.textContent = 'Audio failed';
+    log.textContent = err.name === 'AbortError' ? 'Audio canceled' : 'Audio failed';
     log.style.display = 'block';
+    target._audio = null;
+    target._abortController = null;
   } finally {
     target.disabled = false;
   }

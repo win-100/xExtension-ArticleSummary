@@ -64,13 +64,20 @@ $controller->fetchTtsParamsAction();
 $ttsOutput = ob_get_clean();
 $ttsData = json_decode($ttsOutput, true);
 $voice = $ttsData['response']['data']['voice'] ?? null;
+$format = $ttsData['response']['data']['response_format'] ?? null;
 
 if ($voice !== 'my-voice') {
     echo "Voice mismatch: expected my-voice, got {$voice}\n";
     exit(1);
 }
 
+if ($format !== 'opus') {
+    echo "Format mismatch: expected opus, got {$format}\n";
+    exit(1);
+}
+
 echo "Voice matches configuration\n";
+echo "Format matches configuration\n";
 
 // Test speakAction()
 Minz_Request::$params = ['content' => 'Speak me'];
@@ -79,10 +86,17 @@ $controller->speakAction();
 $speakOutput = ob_get_clean();
 $speakData = json_decode($speakOutput, true);
 $input = $speakData['response']['data']['input'] ?? null;
+$speakFormat = $speakData['response']['data']['response_format'] ?? null;
 
 if ($input !== 'Speak me') {
     echo "Input mismatch: expected Speak me, got {$input}\n";
     exit(1);
 }
 
+if ($speakFormat !== 'opus') {
+    echo "Speak format mismatch: expected opus, got {$speakFormat}\n";
+    exit(1);
+}
+
 echo "Speak action returns input\n";
+echo "Speak action returns format\n";
