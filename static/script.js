@@ -126,12 +126,121 @@ async function summarizeButtonClick(target) {
   }
 }
 
-async function ttsButtonClick(target) {
+async function ttsButtonClick(target, forceStop = false) {
   const container = target.closest('.oai-summary-wrap');
   const log = container.querySelector('.oai-summary-log');
 
-  // Toggle play/pause or cancel if audio already loaded
+  // Global article button: handle sequential paragraph reading
+  if (!target.classList.contains('oai-tts-paragraph')) {
+    if (target._sequence) {
+      const currentBtn = target._sequence.currentBtn;
+      if (currentBtn) {
+        await ttsButtonClick(currentBtn);
+        if (currentBtn._audio && !currentBtn._audio.paused) {
+          target.classList.add('oai-playing');
+          target.setAttribute('aria-label', 'Pause');
+          target.setAttribute('title', 'Pause');
+        } else {
+          target.classList.remove('oai-playing');
+          target.setAttribute('aria-label', 'Lire');
+          target.setAttribute('title', 'Lire');
+        }
+      }
+      return;
+    }
+
+    const buttons = Array.from(container.querySelectorAll('.oai-tts-paragraph'));
+    if (buttons.length === 0) {
+      return;
+    }
+    target._sequence = { buttons: buttons, index: 0, currentBtn: null };
+    target.classList.add('oai-playing');
+    target.setAttribute('aria-label', 'Pause');
+    target.setAttribute('title', 'Pause');
+    target._playNextParagraph = function () {
+      const seq = target._sequence;
+      if (!seq || seq.index >= seq.buttons.length) {
+        target.classList.remove('oai-playing');
+        target.setAttribute('aria-label', 'Lire');
+        target.setAttribute('title', 'Lire');
+        target._sequence = null;
+        log.textContent = '';
+        log.style.display = 'none';
+        return;
+      }
+      const btn = seq.buttons[seq.index++];
+      seq.currentBtn = btn;
+      btn._sequenceParent = target;
+      ttsButtonClick(btn);
+    };
+    target._playNextParagraph();
+    return;
+  }
+
+  // Paragraph button: start sequence from this paragraph
+  const articleBtn = container.querySelector('.oai-tts-btn:not(.oai-tts-paragraph)');
+  if (articleBtn && !target._sequenceParent) {
+    if (
+      articleBtn._sequence &&
+      articleBtn._sequence.currentBtn &&
+      articleBtn._sequence.currentBtn !== target
+    ) {
+      await ttsButtonClick(articleBtn._sequence.currentBtn, true);
+    }
+    const buttons = Array.from(container.querySelectorAll('.oai-tts-paragraph'));
+    articleBtn._sequence = {
+      buttons: buttons,
+      index: buttons.indexOf(target) + 1,
+      currentBtn: target
+    };
+    articleBtn.classList.add('oai-playing');
+    articleBtn.setAttribute('aria-label', 'Pause');
+    articleBtn.setAttribute('title', 'Pause');
+    articleBtn._playNextParagraph = function () {
+      const seq = articleBtn._sequence;
+      if (!seq || seq.index >= seq.buttons.length) {
+        articleBtn.classList.remove('oai-playing');
+        articleBtn.setAttribute('aria-label', 'Lire');
+        articleBtn.setAttribute('title', 'Lire');
+        articleBtn._sequence = null;
+        log.textContent = '';
+        log.style.display = 'none';
+        return;
+      }
+      const btn = seq.buttons[seq.index++];
+      seq.currentBtn = btn;
+      btn._sequenceParent = articleBtn;
+      ttsButtonClick(btn);
+    };
+    target._sequenceParent = articleBtn;
+  }
+
+  // Toggle play/pause or cancel if audio already loaded for paragraph button
   if (target._audio) {
+    if (forceStop) {
+      if (target._abortController) {
+        target._abortController.abort();
+        target._abortController = null;
+        URL.revokeObjectURL(target._audio.src);
+      }
+      target._audio.pause();
+      target._audio = null;
+      log.textContent = '';
+      log.style.display = 'none';
+      target.classList.remove('oai-playing');
+      target.setAttribute('aria-label', 'Lire');
+      target.setAttribute('title', 'Lire');
+      if (target._sequenceParent) {
+        const parent = target._sequenceParent;
+        target._sequenceParent = null;
+        parent.classList.remove('oai-playing');
+        parent.setAttribute('aria-label', 'Lire');
+        parent.setAttribute('title', 'Lire');
+        parent._sequence = null;
+      }
+      return;
+    }
+
     if (target._audio.paused) {
       target._audio.play();
       target.classList.add('oai-playing');
@@ -153,11 +262,32 @@ async function ttsButtonClick(target) {
       target.setAttribute('aria-label', 'Lire');
       target.setAttribute('title', 'Lire');
     }
+    if (target._sequenceParent) {
+      const parent = target._sequenceParent;
+      if (target._audio && !target._audio.paused) {
+        parent.classList.add('oai-playing');
+        parent.setAttribute('aria-label', 'Pause');
+        parent.setAttribute('title', 'Pause');
+      } else {
+        parent.classList.remove('oai-playing');
+        parent.setAttribute('aria-label', 'Lire');
+        parent.setAttribute('title', 'Lire');
+        if (!target._audio) {
+          parent._sequence = null;
+        }
+      }
+    }
     return;
   }
 
-  const article = container.querySelector('.oai-summary-article');
-  const text = article ? article.textContent.trim() : '';
+  let text;
+  if (target.classList.contains('oai-tts-paragraph')) {
+    const p = target.closest('p');
+    text = p ? p.textContent.trim() : '';
+  } else {
+    const article = container.querySelector('.oai-summary-article');
+    text = article ? article.textContent.trim() : '';
+  }
   if (!text) {
     return;
   }
@@ -236,6 +366,11 @@ async function ttsButtonClick(target) {
           target.classList.remove('oai-playing');
           target.setAttribute('aria-label', 'Lire');
           target.setAttribute('title', 'Lire');
+          if (target._sequenceParent) {
+            const parent = target._sequenceParent;
+            target._sequenceParent = null;
+            parent._playNextParagraph();
+          }
         });
         target.classList.add('oai-playing');
         target.setAttribute('aria-label', 'Pause');
@@ -252,6 +387,11 @@ async function ttsButtonClick(target) {
           target.classList.remove('oai-playing');
           target.setAttribute('aria-label', 'Lire');
           target.setAttribute('title', 'Lire');
+          if (target._sequenceParent) {
+            const parent = target._sequenceParent;
+            target._sequenceParent = null;
+            parent._playNextParagraph();
+          }
         }
         return;
       }
@@ -265,6 +405,11 @@ async function ttsButtonClick(target) {
       target.classList.remove('oai-playing');
       target.setAttribute('aria-label', 'Lire');
       target.setAttribute('title', 'Lire');
+      if (target._sequenceParent) {
+        const parent = target._sequenceParent;
+        target._sequenceParent = null;
+        parent._playNextParagraph();
+      }
     });
 
     mediaSource.addEventListener('sourceopen', async () => {
@@ -296,6 +441,11 @@ async function ttsButtonClick(target) {
               target.classList.remove('oai-playing');
               target.setAttribute('aria-label', 'Lire');
               target.setAttribute('title', 'Lire');
+              if (target._sequenceParent) {
+                const parent = target._sequenceParent;
+                target._sequenceParent = null;
+                parent._playNextParagraph();
+              }
             }
           }
         }
@@ -318,6 +468,11 @@ async function ttsButtonClick(target) {
     log.style.display = 'block';
     target._audio = null;
     target._abortController = null;
+    if (target._sequenceParent) {
+      const parent = target._sequenceParent;
+      target._sequenceParent = null;
+      parent._playNextParagraph();
+    }
   } finally {
     target.disabled = false;
   }
