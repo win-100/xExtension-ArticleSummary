@@ -189,7 +189,7 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
 
   // Paragraph button: start sequence from this paragraph
   const articleBtn = container.querySelector('.oai-tts-btn:not(.oai-tts-paragraph)');
-  if (articleBtn && !target._sequenceParent) {
+  if (articleBtn && !target._sequenceParent && !preload) {
     if (
       articleBtn._sequence &&
       articleBtn._sequence.currentBtn &&
