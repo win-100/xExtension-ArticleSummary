@@ -44,8 +44,8 @@ class ArticleSummaryExtension extends Minz_Extension
     $icon_tts_pause = str_replace('<svg ', '<svg class="oai-tts-icon oai-tts-pause" ', file_get_contents(__DIR__ . '/static/img/pause.svg'));
     $icon = str_replace('<svg ', '<svg class="oai-summary-icon" ', file_get_contents(__DIR__ . '/static/img/summary.svg'));
 
-    $paragraph_button = '<button class="oai-tts-btn oai-tts-paragraph" aria-label="Lire le paragraphe" title="Lire le paragraphe">'
-      . $icon_tts_play . '</button>';
+    $paragraph_button = '<button data-request="' . $url_tts . '" class="oai-tts-btn oai-tts-paragraph" aria-label="Lire le paragraphe" title="Lire le paragraphe">'
+      . $icon_tts_play . $icon_tts_pause . '</button>';
     $article_content = preg_replace('/<p\b([^>]*)>/', '<p$1>' . $paragraph_button, $entry->content());
 
       $entry->_content(
