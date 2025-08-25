@@ -126,7 +126,7 @@ async function summarizeButtonClick(target) {
   }
 }
 
-async function ttsButtonClick(target) {
+async function ttsButtonClick(target, forceStop = false) {
   const container = target.closest('.oai-summary-wrap');
   const log = container.querySelector('.oai-summary-log');
 
@@ -185,7 +185,7 @@ async function ttsButtonClick(target) {
       articleBtn._sequence.currentBtn &&
       articleBtn._sequence.currentBtn !== target
     ) {
-      await ttsButtonClick(articleBtn._sequence.currentBtn);
+      await ttsButtonClick(articleBtn._sequence.currentBtn, true);
     }
     const buttons = Array.from(container.querySelectorAll('.oai-tts-paragraph'));
     articleBtn._sequence = {
@@ -217,6 +217,30 @@ async function ttsButtonClick(target) {
 
   // Toggle play/pause or cancel if audio already loaded for paragraph button
   if (target._audio) {
+    if (forceStop) {
+      if (target._abortController) {
+        target._abortController.abort();
+        target._abortController = null;
+        URL.revokeObjectURL(target._audio.src);
+      }
+      target._audio.pause();
+      target._audio = null;
+      log.textContent = '';
+      log.style.display = 'none';
+      target.classList.remove('oai-playing');
+      target.setAttribute('aria-label', 'Lire');
+      target.setAttribute('title', 'Lire');
+      if (target._sequenceParent) {
+        const parent = target._sequenceParent;
+        target._sequenceParent = null;
+        parent.classList.remove('oai-playing');
+        parent.setAttribute('aria-label', 'Lire');
+        parent.setAttribute('title', 'Lire');
+        parent._sequence = null;
+      }
+      return;
+    }
+
     if (target._audio.paused) {
       target._audio.play();
       target.classList.add('oai-playing');
@@ -248,6 +272,9 @@ async function ttsButtonClick(target) {
         parent.classList.remove('oai-playing');
         parent.setAttribute('aria-label', 'Lire');
         parent.setAttribute('title', 'Lire');
+        if (!target._audio) {
+          parent._sequence = null;
+        }
       }
     }
     return;
