@@ -257,13 +257,38 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
     if (target._audio.paused) {
       try {
         await target._audio.play();
+        target.classList.add('oai-playing');
+        target.setAttribute('aria-label', 'Pause');
+        target.setAttribute('title', 'Pause');
+        log.textContent = '';
+        log.style.display = 'none';
+        maybePreloadNext(target);
       } catch (err) {
         console.error('Playback failed', err);
+        log.textContent = 'Audio playback failed';
+        log.style.display = 'block';
+        target.classList.remove('oai-playing');
+        target.setAttribute('aria-label', 'Lire');
+        target.setAttribute('title', 'Lire');
+        target._audio.addEventListener(
+          'canplay',
+          async () => {
+            try {
+              await target._audio.play();
+              target.classList.add('oai-playing');
+              target.setAttribute('aria-label', 'Pause');
+              target.setAttribute('title', 'Pause');
+              log.textContent = '';
+              log.style.display = 'none';
+              maybePreloadNext(target);
+            } catch (err2) {
+              console.error('Playback retry failed', err2);
+            }
+          },
+          { once: true }
+        );
+        return;
       }
-      target.classList.add('oai-playing');
-      target.setAttribute('aria-label', 'Pause');
-      target.setAttribute('title', 'Pause');
-      maybePreloadNext(target);
     } else {
       if (target._abortController) {
         target._abortController.abort();
@@ -416,6 +441,23 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
               target._sequenceParent = null;
               parent._playNextParagraph();
             }
+            audio.addEventListener(
+              'canplay',
+              async () => {
+                try {
+                  await audio.play();
+                  target.classList.add('oai-playing');
+                  target.setAttribute('aria-label', 'Pause');
+                  target.setAttribute('title', 'Pause');
+                  log.textContent = '';
+                  log.style.display = 'none';
+                  maybePreloadNext(target);
+                } catch (err2) {
+                  console.error('Playback retry failed', err2);
+                }
+              },
+              { once: true }
+            );
           }
         }
         return;
@@ -472,6 +514,23 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
                 target._sequenceParent = null;
                 parent._playNextParagraph();
               }
+              audio.addEventListener(
+                'canplay',
+                async () => {
+                  try {
+                    await audio.play();
+                    target.classList.add('oai-playing');
+                    target.setAttribute('aria-label', 'Pause');
+                    target.setAttribute('title', 'Pause');
+                    log.textContent = '';
+                    log.style.display = 'none';
+                    maybePreloadNext(target);
+                  } catch (err2) {
+                    console.error('Playback retry failed', err2);
+                  }
+                },
+                { once: true }
+              );
             }
           }
         }
