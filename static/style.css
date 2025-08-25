@@ -106,3 +106,12 @@
   display: none;
   margin-top: 1em;
 }
+
+.oai-summary-article .oai-tts-paragraph {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-right: 0.5em;
+  cursor: pointer;
+}
+

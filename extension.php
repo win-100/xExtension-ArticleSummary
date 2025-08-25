@@ -44,6 +44,10 @@ class ArticleSummaryExtension extends Minz_Extension
     $icon_tts_pause = str_replace('<svg ', '<svg class="oai-tts-icon oai-tts-pause" ', file_get_contents(__DIR__ . '/static/img/pause.svg'));
     $icon = str_replace('<svg ', '<svg class="oai-summary-icon" ', file_get_contents(__DIR__ . '/static/img/summary.svg'));
 
+    $paragraph_button = '<button class="oai-tts-btn oai-tts-paragraph" aria-label="Lire le paragraphe" title="Lire le paragraphe">'
+      . $icon_tts_play . '</button>';
+    $article_content = preg_replace('/<p\b([^>]*)>/', '<p$1>' . $paragraph_button, $entry->content());
+
       $entry->_content(
         '<div class="oai-summary-wrap">'
         . '<button data-request="' . $url_tts . '" class="oai-tts-btn btn btn-small" aria-label="Lire" title="Lire">' . $icon_tts_play . $icon_tts_pause . '</button>'
@@ -55,7 +59,7 @@ class ArticleSummaryExtension extends Minz_Extension
         . '<div class="oai-summary-content"></div>'
         . ($has_more ? '<button data-request="' . $url_more . '" class="oai-summary-btn oai-summary-more btn btn-small" aria-label="Résumé plus long" title="Résumé plus long">+</button>' : '')
         . '</div>'
-        . '<div class="oai-summary-article">' . $entry->content() . '</div>'
+        . '<div class="oai-summary-article">' . $article_content . '</div>'
         . '</div>'
       );
     return $entry;
