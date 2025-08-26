@@ -4,6 +4,7 @@ $oai_key = FreshRSS_Context::$user_conf->oai_key;
 $oai_model = FreshRSS_Context::$user_conf->oai_model ?: 'gpt-5-nano';
 $oai_tts_model = FreshRSS_Context::$user_conf->oai_tts_model ?: 'gpt-tts-1';
 $oai_voice = FreshRSS_Context::$user_conf->oai_voice ?: 'alloy';
+$oai_speed = FreshRSS_Context::$user_conf->oai_speed ?: 1.1;
 $oai_prompt = FreshRSS_Context::$user_conf->oai_prompt;
 $oai_prompt_2 = FreshRSS_Context::$user_conf->oai_prompt_2;
 $oai_provider = FreshRSS_Context::$user_conf->oai_provider ?: 'openai'; // Default to OpenAI
@@ -26,6 +27,8 @@ $oai_provider = FreshRSS_Context::$user_conf->oai_provider ?: 'openai'; // Defau
     <input type="text" name="oai_model" id="oai_model" value="<?php echo $oai_model; ?>">
     <label for="oai_voice">Voix</label>
     <input type="text" name="oai_voice" id="oai_voice" value="<?php echo $oai_voice; ?>">
+    <label for="oai_speed">Vitesse de lecture</label>
+    <input type="number" name="oai_speed" id="oai_speed" min="0.5" max="4" step="0.1" value="<?php echo $oai_speed; ?>">
     <label for="oai_tts_model">Modèle TTS</label>
     <input type="text" name="oai_tts_model" id="oai_tts_model" value="<?php echo $oai_tts_model; ?>">
     <label for="oai_prompt">Prompt (add before content)</label>

@@ -363,6 +363,7 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
     const body = {
       model: params.model,
       voice: params.voice,
+      speed: params.speed,
       input: params.input,
       stream: params.stream,
       response_format: params.response_format
