@@ -35,6 +35,7 @@ FreshRSS_Context::$user_conf = (object) [
     'oai_provider' => 'openai',
     'oai_tts_model' => 'my-tts-model',
     'oai_voice' => 'my-voice',
+    'oai_speed' => 1.1,
 ];
 
 // Capture the output of summarizeAction()
@@ -65,6 +66,7 @@ $ttsOutput = ob_get_clean();
 $ttsData = json_decode($ttsOutput, true);
 $voice = $ttsData['response']['data']['voice'] ?? null;
 $format = $ttsData['response']['data']['response_format'] ?? null;
+$speed = $ttsData['response']['data']['speed'] ?? null;
 
 if ($voice !== 'my-voice') {
     echo "Voice mismatch: expected my-voice, got {$voice}\n";
@@ -76,8 +78,14 @@ if ($format !== 'opus') {
     exit(1);
 }
 
+if ($speed !== 1.1) {
+    echo "Speed mismatch: expected 1.1, got {$speed}\n";
+    exit(1);
+}
+
 echo "Voice matches configuration\n";
 echo "Format matches configuration\n";
+echo "Speed matches configuration\n";
 
 // Test speakAction()
 Minz_Request::$params = ['content' => 'Speak me'];
@@ -87,6 +95,7 @@ $speakOutput = ob_get_clean();
 $speakData = json_decode($speakOutput, true);
 $input = $speakData['response']['data']['input'] ?? null;
 $speakFormat = $speakData['response']['data']['response_format'] ?? null;
+$speakSpeed = $speakData['response']['data']['speed'] ?? null;
 
 if ($input !== 'Speak me') {
     echo "Input mismatch: expected Speak me, got {$input}\n";
@@ -98,5 +107,11 @@ if ($speakFormat !== 'opus') {
     exit(1);
 }
 
+if ($speakSpeed !== 1.1) {
+    echo "Speak speed mismatch: expected 1.1, got {$speakSpeed}\n";
+    exit(1);
+}
+
 echo "Speak action returns input\n";
 echo "Speak action returns format\n";
+echo "Speak action returns speed\n";

@@ -110,6 +110,11 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
     $oai_key = FreshRSS_Context::$user_conf->oai_key;
     $tts_model = FreshRSS_Context::$user_conf->oai_tts_model;
     $voice = FreshRSS_Context::$user_conf->oai_voice;
+    $speed = FreshRSS_Context::$user_conf->oai_speed;
+    if ($speed === null || !is_numeric($speed)) {
+      $speed = 1.1;
+    }
+    $speed = max(0.5, min(4, (float)$speed));
     $content = Minz_Request::param('content');
 
     if (
@@ -141,6 +146,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           'oai_key' => $oai_key,
           'model' => $tts_model,
           'voice' => $voice,
+          'speed' => $speed,
           'input' => $content,
           'stream' => true,
           'response_format' => 'opus',
@@ -164,6 +170,11 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
     $oai_key = FreshRSS_Context::$user_conf->oai_key;
     $tts_model = FreshRSS_Context::$user_conf->oai_tts_model;
     $voice = FreshRSS_Context::$user_conf->oai_voice;
+    $speed = FreshRSS_Context::$user_conf->oai_speed;
+    if ($speed === null || !is_numeric($speed)) {
+      $speed = 1.1;
+    }
+    $speed = max(0.5, min(4, (float)$speed));
 
     if (
       $this->isEmpty($oai_url) ||
@@ -193,6 +204,7 @@ class FreshExtension_ArticleSummary_Controller extends Minz_ActionController
           'oai_key' => $oai_key,
           'model' => $tts_model,
           'voice' => $voice,
+          'speed' => $speed,
           'response_format' => 'opus',
         ),
         'error' => null

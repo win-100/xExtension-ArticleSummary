@@ -76,6 +76,11 @@ class ArticleSummaryExtension extends Minz_Extension
       FreshRSS_Context::$user_conf->oai_provider = Minz_Request::param('oai_provider', '');
       FreshRSS_Context::$user_conf->oai_tts_model = Minz_Request::param('oai_tts_model', '');
       FreshRSS_Context::$user_conf->oai_voice = Minz_Request::param('oai_voice', '');
+      $speed = (float)Minz_Request::param('oai_speed', 1.1);
+      if ($speed < 0.5 || $speed > 4) {
+        $speed = 1.1;
+      }
+      FreshRSS_Context::$user_conf->oai_speed = $speed;
       FreshRSS_Context::$user_conf->save();
     }
   }
