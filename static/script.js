@@ -76,6 +76,7 @@ function setOaiState(container, statusType, statusMsg, summaryText) {
 
 async function summarizeButtonClick(target) {
   var container = target.closest('.oai-summary-wrap');
+  var t = container.dataset;
   if (container.classList.contains('oai-loading')) {
     return;
   }
@@ -86,7 +87,7 @@ async function summarizeButtonClick(target) {
 
   container.classList.add('oai-summary-active');
 
-  setOaiState(container, 1, 'Preparing request...', null);
+  setOaiState(container, 1, t.preparingRequest, null);
 
   // This is the address where PHP gets the parameters
   var url = target.dataset.request;
@@ -105,7 +106,7 @@ async function summarizeButtonClick(target) {
     console.log(xresp);
 
     if (response.status !== 200 || !xresp.response || !xresp.response.data) {
-      throw new Error('Request Failed (1)');
+      throw new Error(t.requestFailed + ' (1)');
     }
 
     if (xresp.response.error) {
@@ -113,7 +114,7 @@ async function summarizeButtonClick(target) {
     } else {
       const oaiParams = xresp.response.data;
       const oaiProvider = xresp.response.provider;
-      setOaiState(container, 1, `Pending answer from ${oaiProvider === 'openai' ? 'OpenAI' : 'Ollama'}...`, null);
+      setOaiState(container, 1, oaiProvider === 'openai' ? t.pendingOpenai : t.pendingOllama, null);
       if (oaiProvider === 'openai') {
         await sendOpenAIRequest(container, oaiParams);
       } else {
@@ -122,13 +123,19 @@ async function summarizeButtonClick(target) {
     }
   } catch (error) {
     console.error(error);
-    setOaiState(container, 2, 'Request Failed (2)', null);
+    setOaiState(container, 2, t.requestFailed + ' (2)', null);
   }
 }
 
 async function ttsButtonClick(target, forceStop = false, preload = false) {
   const container = target.closest('.oai-summary-wrap');
   const log = container.querySelector('.oai-summary-log');
+  const t = container.dataset;
+  const readLabel = t.read;
+  const pauseLabel = t.pause;
+  const msgPrepAudio = t.preparingAudio;
+  const msgAudioFailed = t.audioFailed;
+  const msgRequestFailed = t.requestFailed;
 
   const maybePreloadNext = (btn) => {
     const parent = btn._sequenceParent;
@@ -148,12 +155,12 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
         await ttsButtonClick(currentBtn);
         if (currentBtn._audio && !currentBtn._audio.paused) {
           target.classList.add('oai-playing');
-          target.setAttribute('aria-label', 'Pause');
-          target.setAttribute('title', 'Pause');
+          target.setAttribute('aria-label', pauseLabel);
+          target.setAttribute('title', pauseLabel);
         } else {
           target.classList.remove('oai-playing');
-          target.setAttribute('aria-label', 'Lire');
-          target.setAttribute('title', 'Lire');
+          target.setAttribute('aria-label', readLabel);
+          target.setAttribute('title', readLabel);
         }
       }
       return;
@@ -165,14 +172,14 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
     }
     target._sequence = { buttons: buttons, index: 0, currentBtn: null };
     target.classList.add('oai-playing');
-    target.setAttribute('aria-label', 'Pause');
-    target.setAttribute('title', 'Pause');
+    target.setAttribute('aria-label', pauseLabel);
+    target.setAttribute('title', pauseLabel);
     target._playNextParagraph = function () {
       const seq = target._sequence;
       if (!seq || seq.index >= seq.buttons.length) {
         target.classList.remove('oai-playing');
-        target.setAttribute('aria-label', 'Lire');
-        target.setAttribute('title', 'Lire');
+        target.setAttribute('aria-label', readLabel);
+        target.setAttribute('title', readLabel);
         target._sequence = null;
         log.textContent = '';
         log.style.display = 'none';
@@ -204,14 +211,14 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
       currentBtn: target
     };
     articleBtn.classList.add('oai-playing');
-    articleBtn.setAttribute('aria-label', 'Pause');
-    articleBtn.setAttribute('title', 'Pause');
+    articleBtn.setAttribute('aria-label', pauseLabel);
+    articleBtn.setAttribute('title', pauseLabel);
     articleBtn._playNextParagraph = function () {
       const seq = articleBtn._sequence;
       if (!seq || seq.index >= seq.buttons.length) {
         articleBtn.classList.remove('oai-playing');
-        articleBtn.setAttribute('aria-label', 'Lire');
-        articleBtn.setAttribute('title', 'Lire');
+        articleBtn.setAttribute('aria-label', readLabel);
+        articleBtn.setAttribute('title', readLabel);
         articleBtn._sequence = null;
         log.textContent = '';
         log.style.display = 'none';
@@ -241,14 +248,14 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
       log.textContent = '';
       log.style.display = 'none';
       target.classList.remove('oai-playing');
-      target.setAttribute('aria-label', 'Lire');
-      target.setAttribute('title', 'Lire');
+      target.setAttribute('aria-label', readLabel);
+      target.setAttribute('title', readLabel);
       if (target._sequenceParent) {
         const parent = target._sequenceParent;
         target._sequenceParent = null;
         parent.classList.remove('oai-playing');
-        parent.setAttribute('aria-label', 'Lire');
-        parent.setAttribute('title', 'Lire');
+        parent.setAttribute('aria-label', readLabel);
+        parent.setAttribute('title', readLabel);
         parent._sequence = null;
       }
       return;
@@ -258,26 +265,26 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
       try {
         await target._audio.play();
         target.classList.add('oai-playing');
-        target.setAttribute('aria-label', 'Pause');
-        target.setAttribute('title', 'Pause');
+        target.setAttribute('aria-label', pauseLabel);
+        target.setAttribute('title', pauseLabel);
         log.textContent = '';
         log.style.display = 'none';
         maybePreloadNext(target);
       } catch (err) {
         console.error('Playback failed', err);
-        log.textContent = 'Audio playback failed';
+        log.textContent = msgAudioFailed;
         log.style.display = 'block';
         target.classList.remove('oai-playing');
-        target.setAttribute('aria-label', 'Lire');
-        target.setAttribute('title', 'Lire');
+        target.setAttribute('aria-label', readLabel);
+        target.setAttribute('title', readLabel);
         target._audio.addEventListener(
           'canplay',
           async () => {
             try {
               await target._audio.play();
               target.classList.add('oai-playing');
-              target.setAttribute('aria-label', 'Pause');
-              target.setAttribute('title', 'Pause');
+              target.setAttribute('aria-label', pauseLabel);
+              target.setAttribute('title', pauseLabel);
               log.textContent = '';
               log.style.display = 'none';
               maybePreloadNext(target);
@@ -302,19 +309,19 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
         target._audio.pause();
       }
       target.classList.remove('oai-playing');
-      target.setAttribute('aria-label', 'Lire');
-      target.setAttribute('title', 'Lire');
+      target.setAttribute('aria-label', readLabel);
+      target.setAttribute('title', readLabel);
     }
     if (target._sequenceParent) {
       const parent = target._sequenceParent;
       if (target._audio && !target._audio.paused) {
         parent.classList.add('oai-playing');
-        parent.setAttribute('aria-label', 'Pause');
-        parent.setAttribute('title', 'Pause');
+        parent.setAttribute('aria-label', pauseLabel);
+        parent.setAttribute('title', pauseLabel);
       } else {
         parent.classList.remove('oai-playing');
-        parent.setAttribute('aria-label', 'Lire');
-        parent.setAttribute('title', 'Lire');
+        parent.setAttribute('aria-label', readLabel);
+        parent.setAttribute('title', readLabel);
         if (!target._audio) {
           parent._sequence = null;
         }
@@ -343,7 +350,7 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
 
   if (!preload) {
     target.disabled = true;
-    log.textContent = 'Preparing audio...';
+    log.textContent = msgPrepAudio;
     log.style.display = 'block';
   }
 
@@ -356,13 +363,14 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
 
     const xresp = response.data;
     if (response.status !== 200 || !xresp.response || !xresp.response.data || xresp.response.error) {
-      throw new Error('Request Failed');
+      throw new Error(msgRequestFailed);
     }
 
     const params = xresp.response.data;
     const body = {
       model: params.model,
       voice: params.voice,
+      speed: params.speed,
       input: params.input,
       stream: params.stream,
       response_format: params.response_format
@@ -409,8 +417,8 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
         target._audio = audio;
         audio.addEventListener('ended', () => {
           target.classList.remove('oai-playing');
-          target.setAttribute('aria-label', 'Lire');
-          target.setAttribute('title', 'Lire');
+          target.setAttribute('aria-label', readLabel);
+          target.setAttribute('title', readLabel);
           if (target._sequenceParent) {
             const parent = target._sequenceParent;
             target._sequenceParent = null;
@@ -419,8 +427,8 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
         });
         if (!preload) {
           target.classList.add('oai-playing');
-          target.setAttribute('aria-label', 'Pause');
-          target.setAttribute('title', 'Pause');
+          target.setAttribute('aria-label', pauseLabel);
+          target.setAttribute('title', pauseLabel);
           log.textContent = '';
           log.style.display = 'none';
         }
@@ -431,11 +439,11 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
             maybePreloadNext(target);
           } catch (err) {
             console.error('Playback failed', err);
-            log.textContent = 'Audio playback failed';
+            log.textContent = msgAudioFailed;
             log.style.display = 'block';
             target.classList.remove('oai-playing');
-            target.setAttribute('aria-label', 'Lire');
-            target.setAttribute('title', 'Lire');
+            target.setAttribute('aria-label', readLabel);
+            target.setAttribute('title', readLabel);
             if (target._sequenceParent) {
               const parent = target._sequenceParent;
               target._sequenceParent = null;
@@ -447,8 +455,8 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
                 try {
                   await audio.play();
                   target.classList.add('oai-playing');
-                  target.setAttribute('aria-label', 'Pause');
-                  target.setAttribute('title', 'Pause');
+                  target.setAttribute('aria-label', pauseLabel);
+                  target.setAttribute('title', pauseLabel);
                   log.textContent = '';
                   log.style.display = 'none';
                   maybePreloadNext(target);
@@ -470,8 +478,8 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
     target._audio = audio;
     audio.addEventListener('ended', () => {
       target.classList.remove('oai-playing');
-      target.setAttribute('aria-label', 'Lire');
-      target.setAttribute('title', 'Lire');
+      target.setAttribute('aria-label', readLabel);
+      target.setAttribute('title', readLabel);
       if (target._sequenceParent) {
         const parent = target._sequenceParent;
         target._sequenceParent = null;
@@ -496,19 +504,19 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
             try {
               await audio.play();
               target.classList.add('oai-playing');
-              target.setAttribute('aria-label', 'Pause');
-              target.setAttribute('title', 'Pause');
+              target.setAttribute('aria-label', pauseLabel);
+              target.setAttribute('title', pauseLabel);
               log.textContent = '';
               log.style.display = 'none';
               maybePreloadNext(target);
               started = true;
             } catch (err) {
               console.error('Playback failed', err);
-              log.textContent = 'Audio playback failed';
+              log.textContent = msgAudioFailed;
               log.style.display = 'block';
               target.classList.remove('oai-playing');
-              target.setAttribute('aria-label', 'Lire');
-              target.setAttribute('title', 'Lire');
+              target.setAttribute('aria-label', readLabel);
+              target.setAttribute('title', readLabel);
               if (target._sequenceParent) {
                 const parent = target._sequenceParent;
                 target._sequenceParent = null;
@@ -520,8 +528,8 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
                   try {
                     await audio.play();
                     target.classList.add('oai-playing');
-                    target.setAttribute('aria-label', 'Pause');
-                    target.setAttribute('title', 'Pause');
+                    target.setAttribute('aria-label', pauseLabel);
+                    target.setAttribute('title', pauseLabel);
                     log.textContent = '';
                     log.style.display = 'none';
                     maybePreloadNext(target);
@@ -541,8 +549,8 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
             log.textContent = 'Audio failed';
             log.style.display = 'block';
             target.classList.remove('oai-playing');
-            target.setAttribute('aria-label', 'Lire');
-            target.setAttribute('title', 'Lire');
+            target.setAttribute('aria-label', readLabel);
+            target.setAttribute('title', readLabel);
           }
         }
       } finally {
@@ -573,6 +581,7 @@ async function ttsButtonClick(target, forceStop = false, preload = false) {
 }
 
 async function sendOpenAIRequest(container, oaiParams) {
+  const t = container.dataset;
   try {
     let body = JSON.parse(JSON.stringify(oaiParams));
     delete body['oai_url'];
@@ -587,9 +596,9 @@ async function sendOpenAIRequest(container, oaiParams) {
     });
 
     if (!response.ok) {
-      throw new Error('Request Failed (3)');
+      throw new Error(t.requestFailed + ' (3)');
     }
-    setOaiState(container, 1, 'Receiving answer...', null);
+    setOaiState(container, 1, t.receivingAnswer, null);
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder('utf-8');
@@ -608,7 +617,7 @@ async function sendOpenAIRequest(container, oaiParams) {
             }
           } catch (e) {
             console.error('Error parsing final JSON:', e, 'Chunk:', buffer);
-            setOaiState(container, 2, 'Request Failed (4)', null);
+            setOaiState(container, 2, t.requestFailed + ' (4)', null);
           }
         }
         setOaiState(container, 0, 'finish', null);
@@ -646,12 +655,13 @@ async function sendOpenAIRequest(container, oaiParams) {
     }
   } catch (error) {
     console.error(error);
-    setOaiState(container, 2, 'Request Failed (5)', null);
+    setOaiState(container, 2, t.requestFailed + ' (5)', null);
   }
 }
 
 
 async function sendOllamaRequest(container, oaiParams){
+  const t = container.dataset;
   try {
     const response = await fetch(oaiParams.oai_url, {
       method: 'POST',
@@ -663,9 +673,9 @@ async function sendOllamaRequest(container, oaiParams){
     });
 
     if (!response.ok) {
-      throw new Error('Request Failed (6)');
+      throw new Error(t.requestFailed + ' (6)');
     }
-    setOaiState(container, 1, 'Receiving answer...', null);
+    setOaiState(container, 1, t.receivingAnswer, null);
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder('utf-8');
@@ -699,6 +709,6 @@ async function sendOllamaRequest(container, oaiParams){
     }
   } catch (error) {
     console.error(error);
-    setOaiState(container, 2, 'Request Failed (7)', null);
+    setOaiState(container, 2, t.requestFailed + ' (7)', null);
   }
 }

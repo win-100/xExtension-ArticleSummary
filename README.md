@@ -9,6 +9,7 @@ This project is a fork of [LiangWei88/xExtension-ArticleSummary](https://github.
 - **API Configuration**: Configure the base URL, API key, model name, and prompt through a simple form.
 - **Summarize Button**: Adds a "summarize" button to each article, allowing users to generate a summary with a single click.
 - **Markdown Support**: Converts HTML content to Markdown before sending it to the API.
+- **Text-to-Speech**: Listen to articles using OpenAI's TTS with adjustable reading speed.
 - **Error Handling**: Provides feedback in case of API errors or incomplete configurations.
 - **Smart Fallback**: Uses the article's description if the main content is empty or contains only images.
 
@@ -23,8 +24,10 @@ This project is a fork of [LiangWei88/xExtension-ArticleSummary](https://github.
 1. **Base URL**: Enter the base URL of your language model API (e.g., `https://api.openai.com/`). Do not include the version path (e.g., `/v1`).
 2. **API Key**: Provide your API key for authentication.
 3. **Model Name**: Specify the model name you wish to use for summarization (e.g., `gpt-4.1`).
-4. **Prompt**: Add a prompt that will be included before the article content when sending the request to the API.
-5. **Summary Type**: Choose between "short" and "long" summary outputs.
+4. **Voice & TTS Model**: Choose the voice and TTS model used for audio playback.
+5. **Reading Speed**: Set the playback speed between `0.5` and `4` (default `1.1`).
+6. **Prompt**: Add a prompt that will be included before the article content when sending the request to the API.
+7. **Summary Type**: Choose between "short" and "long" summary outputs.
 
 ## Usage
 
