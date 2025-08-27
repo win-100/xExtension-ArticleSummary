@@ -12,30 +12,30 @@ $oai_provider = FreshRSS_Context::$user_conf->oai_provider ?: 'openai'; // Defau
 
 <form action="<?php echo _url('extension', 'configure', 'e', urlencode($this->getName())); ?>" method="post">
   <input type="hidden" name="_csrf" value="<?php echo FreshRSS_Auth::csrfToken(); ?>" />
-  <label for="oai_provider">Choose AI Provider</label>
+  <label for="oai_provider"><?php echo ArticleSummaryExtension::t('choose_provider'); ?></label>
   <select name="oai_provider">
-      <option value="openai" <?php echo ($oai_provider == 'openai' ? 'selected' : ''); ?>>OpenAI</option>
-      <option value="ollama" <?php echo ($oai_provider == 'ollama' ? 'selected' : ''); ?>>Ollama</option>
+      <option value="openai" <?php echo ($oai_provider == 'openai' ? 'selected' : ''); ?>><?php echo ArticleSummaryExtension::t('openai'); ?></option>
+      <option value="ollama" <?php echo ($oai_provider == 'ollama' ? 'selected' : ''); ?>><?php echo ArticleSummaryExtension::t('ollama'); ?></option>
    </select>
  
  <div id="common_config">
-    <label for="oai_url">Base URL (http(s)://oai.com/) without 'v1'</label>
+    <label for="oai_url"><?php echo ArticleSummaryExtension::t('base_url'); ?></label>
     <input type="text" name="oai_url" id="oai_url" value="<?php echo $oai_url; ?>">
-    <label for="oai_key">API Key</label>
+    <label for="oai_key"><?php echo ArticleSummaryExtension::t('api_key'); ?></label>
     <input type="text" name="oai_key" id="oai_key" value="<?php echo $oai_key; ?>">
-    <label for="oai_model">Model Name</label>
+    <label for="oai_model"><?php echo ArticleSummaryExtension::t('model_name'); ?></label>
     <input type="text" name="oai_model" id="oai_model" value="<?php echo $oai_model; ?>">
-    <label for="oai_voice">Voix</label>
+    <label for="oai_voice"><?php echo ArticleSummaryExtension::t('voice'); ?></label>
     <input type="text" name="oai_voice" id="oai_voice" value="<?php echo $oai_voice; ?>">
-    <label for="oai_speed">Vitesse de lecture</label>
+    <label for="oai_speed"><?php echo ArticleSummaryExtension::t('speech_speed'); ?></label>
     <input type="number" name="oai_speed" id="oai_speed" min="0.5" max="4" step="0.1" value="<?php echo $oai_speed; ?>">
-    <label for="oai_tts_model">Modèle TTS</label>
+    <label for="oai_tts_model"><?php echo ArticleSummaryExtension::t('tts_model'); ?></label>
     <input type="text" name="oai_tts_model" id="oai_tts_model" value="<?php echo $oai_tts_model; ?>">
-    <label for="oai_prompt">Prompt (add before content)</label>
+    <label for="oai_prompt"><?php echo ArticleSummaryExtension::t('prompt'); ?></label>
     <textarea name="oai_prompt" id="oai_prompt"><?php echo $oai_prompt; ?></textarea>
-    <label for="oai_prompt_2">Second prompt (longer summary)</label>
+    <label for="oai_prompt_2"><?php echo ArticleSummaryExtension::t('prompt_2'); ?></label>
     <textarea name="oai_prompt_2" id="oai_prompt_2"><?php echo $oai_prompt_2; ?></textarea>
   </div>
   <hr />
-  <button type="submit">Save</button>
+  <button type="submit"><?php echo ArticleSummaryExtension::t('save'); ?></button>
 </form>
